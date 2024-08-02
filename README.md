@@ -62,7 +62,7 @@ with clogos resp. c-logo-s instead of cl-logos.
 I am far from being a professional programmer. Instead I am about to
 become a primary school teacher. Before that I worked as a case
 officer in a Social Welfare Office after my legal studies and
-sometimes part-time as a lecturer for social and aliens law and legal
+sometimes part-time as a lecturer for social and alien law and legal
 theory. I also worked for the legal protection company of the German
 Trade Union Federation during my studies.  Before that I worked as a
 trained bookseller, a works council member and a unionist. Quite

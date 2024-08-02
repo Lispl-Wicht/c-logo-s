@@ -79,7 +79,7 @@ life. But of course: I won't find the most efficient solutions nor
 the least verbose. Thus, the implementation will stay
 optimisable for a very long time. My major goal is to bring something
 to life, being mostly usable. (Because I want to use it
-multidisciplinary at my work with my primary school children.)
+across disciplines in my work with primary school children.)
 And I try to document the code responsibly, so the processes of
 optimisation might not become to painful. 
 

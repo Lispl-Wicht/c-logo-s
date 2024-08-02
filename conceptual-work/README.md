@@ -4,7 +4,7 @@ Here, I assemble several documents in which I outline my positions
 towards an *Educational Programming Environment* and related topics.
 
 As I live in Germany, I also write content here in German, aimed at my
-fellow countrymen. However, I mostly write in English - as best as I
+fellow "countrypeople". However, I mostly write in English - as best as I
 can - as I want to reach interested people everywhere, especially
 teachers. This will be used in schools and further developed through
 the experiences gained in practical use. Thus, the project also aims

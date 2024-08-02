@@ -44,19 +44,20 @@ In combination with the turtle extension also the examples in the following (tex
 
 The project name indicates the ancient greek heritage of the name
 "Logo" for a Lisp-derived language which was at first hand specialized
-on computer linguistic operations: Λόγος (Lógos), mainly in the sense
-of "word". But all the philosophical and linguistic implications of
-the term are also useful in this context. Therefore the setup provides
-everything which is possible without the turtle (textual, symbolic
-programming without graphical output but with sound generation). 
+on computer linguistic operations, along with exploring mathematics:
+Λόγος (Lógos), mainly in the sense of "word". But all the
+philosophical and linguistic implications of the term are also useful
+in this context. Therefore the setup provides everything which is
+possible without the turtle (textual, symbolic programming without
+graphical output but with sound generation).
  
 The *setup* is an extension of the Common Lisp language which
-"pretends" to be Logo. And it is aimed at allowing for reproducing the
-most important, beautiful and timeless books about Logo programming
-(in my humble opinion) starting from the quasi standard Berkeley
-Logo. Thus, it is not only "Common Lisp Logo" but also "Common Logo"
-which basically is also a Lisp. That is why I decided to merge the two
-"Ls" and ended up with clogos resp. c-logo-s instead of cl-logos. 
+"pretends" to be Logo. And it aims to reproduce the most important,
+beautiful and timeless books on Logo programming (in my humble
+opinion), starting from the quasi-standard Berkeley Logo. Thus, it is
+not only "Common Lisp Logo" but also "Common Logo" which basically is
+also a Lisp. That is why I decided to merge the two "Ls" and ended up
+with clogos resp. c-logo-s instead of cl-logos.
 
 I am far from being a professional programmer. Instead I am about to
 become a primary school teacher. Before that I worked as a case

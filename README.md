@@ -53,7 +53,7 @@ programming without graphical output but with sound generation).
 The *setup* is an extension of the Common Lisp language which
 "pretends" to be Logo. And it is aimed at allowing for reproducing the
 most important, beautiful and timeless books about Logo programming
-(in my humbly opinion) starting from the quasi standard Berkeley
+(in my humble opinion) starting from the quasi standard Berkeley
 Logo. Thus, it is not only "Common Lisp Logo" but also "Common Logo"
 which basically is also a Lisp. That is why I decided to merge the two
 "Ls" and ended up with clogos resp. c-logo-s instead of cl-logos. 

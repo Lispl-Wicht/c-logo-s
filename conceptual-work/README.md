@@ -21,7 +21,7 @@ education was already written like it could be written today.
 
 Seymour Papert was enthusiastic about the Turtle from the very
 start. And it is a wonderful tool in the way it is supposed to be, an
-ennironment for exploring geometry.
+environment for exploring geometry.
 
 [Turtle
 Geometry](https://direct.mit.edu/books/oa-monograph/4663/Turtle-GeometryThe-Computer-as-a-Medium-for) 
@@ -30,7 +30,7 @@ But in the sense of *Logo* it appears also distracting from the rest
 of the programming language. This is why this project is supposed to
 start with the core language and manages the Turtle extension later.
 
-["Logo-based turtles, erroneously thought by many to be essential to the Logo teaching enterprise, were introduced around 1971"](https://www.atariarchives.org/deli/logo.php)
+["Logo-based turtles, erroneously thought by many to be essential to the Logo teaching enterprise, were introduced around 1971."](https://www.atariarchives.org/deli/logo.php)
 
 Of course, the project started as a conceptual framework for teaching
 mathematics by exploring it.

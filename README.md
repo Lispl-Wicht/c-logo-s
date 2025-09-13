@@ -166,9 +166,10 @@ Restart Emacs. It should:
 * Open with ```scratch``` buffer + SLIME REPL + file manager (toggle with
   ```<F8>```). 
   
-(SLIME stands for Superior Lisp Interaction Mode for Emacs. Think of it as a
-“remote control” for Common Lisp: it enhances the REPL, and even lets you run
-and manage several Lisp instances in parallel.) 
+> SLIME stands for Superior Lisp Interaction Mode for Emacs. Think of it as a
+> “remote control” for Common Lisp: it enhances the REPL to be much more
+> comfortable, and even lets you run and manage several Lisp instances in
+> parallel.
 
 If everything worked, Emacs should look something like this:
 

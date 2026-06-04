@@ -47,16 +47,16 @@ learner’s mind.
 *Textbooks are not “examples”; they are specifications.*
 
 - **Primary canon:**
-  *Harvey*, *Computer Science Logo Style*, Vol. 1–3
+  *Harvey*: *Computer Science Logo Style*, Vol. 1–3
   → must run categorically, not approximately.
 
 - **Secondary canon:**
-  *Solomon, Minsky, Harvey*, *LogoWorks*
+  *Solomon: Minsky, Harvey*, *LogoWorks*
   → challenging programs must translate without conceptual distortion.
 
 - **Tertiary canon:**
-  *Papert*, *Mindstorms*
-  *Abelson & di Sessa*, *Turtle Geometry*
+  *Papert*: *Mindstorms*;
+  *Abelson & di Sessa*: *Turtle Geometry*
   - These works must be followed without friction, and with minimal concessions
     *only* when coherence demands it.
   - cLogos’ help system explicitly guides users when names diverge.

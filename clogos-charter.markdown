@@ -51,7 +51,7 @@ learner’s mind.
   → must run categorically, not approximately.
 
 - **Secondary canon:**
-  *Solomon: Minsky, Harvey*, *LogoWorks*
+  *Solomon Minsky, Harvey*: *LogoWorks*
   → challenging programs must translate without conceptual distortion.
 
 - **Tertiary canon:**

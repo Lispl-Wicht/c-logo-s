@@ -207,7 +207,7 @@ Clone the cLogos repository into Quicklisp’s canonical directory:
 
 Then, with Emacs and SLIME running:
 ```
-CL-USER> (asdf:load-system :clogos)
+CL-USER> (asdf:load-system :c-logo-s)
 ```
 
 Enter the core Logo package:

@@ -1,4 +1,4 @@
-# c-Logo-s
+# cLogos
 
 ```
                   /
@@ -13,77 +13,298 @@
                        \__/
 ```
 
-The Common Logo Setup c-Logo-s
-==============================
+## The Common (Lisp) Logo Setup cLogos
  
-Version 0.0.1 - (This text will be replaced as soon as there is a
-significant progress in the background work to publish Version
-0.1.0. At the moment, this serves as an explanation, why simply the
-skeleton is already published.) 
+Version 0.0.2 (11 June 2026)
  
-This is the plan:
- 
-The Common Logo Setup shall become the core of the Common Logo Setup
-*Suite* which provides the behaviour of the Logo programming language
-on top of Common Lisp. The main reference is Brian Harveys Berkeley
-Logo (UCBLogo) 6.2 manual (2022) including the experimental
-prototype-based object system inspired by Paradigm Software's Object Logo (1991). 
+*cLogos* is a faithful, living implementation of
+[**Berkeley Logo**](https://github.com/jrincayc/ucblogo-code), written in
+[**Common Lisp**](https://common-lisp.net/) as the host language. 
+Current development targets [**SBCL**](https://www.sbcl.org/).
 
-A further point of reference is the Atari Logo manual from Logo Computer Systems, Inc. (1983).
- 
-The goal is to make it possible to reproduce all examples of the following textbook at most without compromises:
+cLogos is not a Logo-*inspired* language, nor a Lisp DSL with Logo syntax.
+Berkeley Logo as described in its 
+[Berkeley Logo Reference
+Manual](https://people.eecs.berkeley.edu/~bh/v2ch14/manual.html) 
+is its **normative core**.
 
-* Brian Harvey (1984/1997): Computer Science Logo Style vol. 1-3
+---
 
-In combination with the turtle extension also the examples in the following (text-)books shall be fully reproducable:
+## Why cLogos?
 
-* Seymour Papert (1980): Mindstorms.
-* Harold Abelson, Andrea diSessa (1980): Turtle Geometry.
-* Cynthia Solomon, Margaret Minsky, Brian Harvey (ed.) (1986): LogoWorks. Challenging Programs in Logo
-* Jim Muller (1997): The Great Logo Adventure.
+Logo already exists — so why build another implementation?
 
-The project name indicates the ancient greek heritage of the name
-"Logo" for a Lisp-derived language which was at first hand specialized
-on computer linguistic operations, along with exploring mathematics:
-Λόγος (Lógos), mainly in the sense of "word". But all the
-philosophical and linguistic implications of the term are also useful
-in this context. Therefore the setup provides everything which is
-possible without the turtle (textual, symbolic programming without
-graphical output but with sound generation).
- 
-The *setup* is an extension of the Common Lisp language which
-"pretends" to be Logo. And it aims to reproduce the most important,
-beautiful and timeless books on Logo programming (in my humble
-opinion), starting from the quasi-standard Berkeley Logo. Thus, it is
-not only "Common Lisp Logo" but also "Common Logo" which basically is
-also a Lisp. That is why I decided to merge the two "Ls" and ended up
-with clogos resp. c-logo-s instead of cl-logos.
+**Because Logo is not merely a language.**
+It is a *way of thinking*, and that way of thinking deserves implementations
+that are both faithful and alive.
 
-I am far from being a professional programmer. Instead I am about to
-become a primary school teacher. Before that I worked as a case
-officer in a Social Welfare Office after my legal studies and
-sometimes part-time as a lecturer for social and alien law and legal
-theory. I also worked for the legal protection company of the German
-Trade Union Federation during my studies.  Before that I worked as a
-trained bookseller, a works council member and a unionist. Quite
-mixed up. Yet through all these years, since my father bought a CPC
-464 for his own work in 1984, I never could detach myself from
-somehow playing around with programming and programming languages -
-as a kid not knowing what to program with clumsy Turbo Pascal
-(unfortunately I didn't know anything about Digital Research's
-Dr. Logo), as an enthusiast delving into Linux, as a merchant, as a
-legal scholar and as a teacher.
- 
-I hope, regarding my source code my attempt at designing a complex
-Logo learning environment is not a total style crime like my work
-life. But of course: I won't find the most efficient solutions nor 
-the least verbose. Thus, the implementation will stay
-optimisable for a very long time. My major goal is to bring something
-to life, being mostly usable. (Because I want to use it
-across disciplines in my work with primary school children.)
-And I try to document the code responsibly, so the processes of
-optimisation might not become to painful. 
+**Berkeley Logo** exists precisely in this role:
+a running, stable, minimal implementation that preserves the canonical Logo
+language core with exceptional clarity and focus on powerful ideas in computer
+science education. Its restraint is a feature, not a limitation.
+
+cLogos does not seek to replace Berkeley Logo, nor to "improve" it.
+Instead, cLogos exists to **preserve *and extend*** Logo’s original strengths
+*without disturbing its core*.
+
+In particular, cLogos aims to support Logo’s parallel modes of thinking:
+
+- treating **textual Logo** as a first-class medium for rigorous symbolic reasoning,
+- treating **turtle geometry** as a concrete, spatial embodiment of those same ideas,
+- and treating **visual and syntactic forms** as alternative representations of a
+  shared underlying semantics.
+
+Text, motion, and symbol are not stages to outgrow — they are 
+*coexisting modes of thought*. 
+
+cLogos does **not** aim to make programming easier.
+It aims to make **structural thinking expressible** at the level at which it is
+already being formed in the learner’s mind.
+
+---
+
+## Design commitments
+
+cLogos is governed by an explicit design charter (**The cLogos Charter**), which
+defines what the system *is* — and what it is *not*. 
+
+In summary:
+
+- **Berkeley Logo compatibility is definitional.**
+  If Berkeley Logo does something, cLogos must do it the same way — or document
+  the difference explicitly. 
+
+- **Textbooks are specifications.**
+  Canonical works by 
+  - [*Brian Harvey (1985/1997)*](https://people.eecs.berkeley.edu/~bh/v1-toc2.html), 
+  - [*Cynthia Solomon, Margaret Minsky and Brian Harvey
+  eds. (1986)*](https://logothings.github.io/logothings/logoworks/Home.html), 
+  - [*Seymour Papert
+  (1980)*](https://worrydream.com/refs/Papert_1980_-_Mindstorms,_1st_ed.pdf), 
+  - and [*Harold Abelson and Andrea diSessa
+  (1980)*](https://direct.mit.edu/books/oa-monograph/4663/Turtle-GeometryThe-Computer-as-a-Medium-for) 
+  must *run*, not merely "mostly work".
+
+- **Power is introduced without hiding mechanisms.**
+  Extensions are local, explicit, and pedagogically motivated.
+
+- **Logo remains the unit of explanation.**
+  New features must be explainable *in Logo terms*, not imported abstractions.
+
+The Charter is not aspirational documentation; it is a **binding specification**.
+
+---
+
+## About the name
+
+The name *cLogos* reflects both lineage and intent.
+
+- **“c”** stands for *common*.
+- **“L”** refers to the Greek lambda (Λ, λ), visually echoing two *l*s and
+  symbolizing both *Lisp* and *Logo*. 
+- **“s”** stands for *setup* — historically, though cLogos is no longer
+  conceived as a mere embedding or façade. 
+
+The name also points to the ancient Greek **Λόγος (Lógos)** — commonly
+translated as *"word"*, but carrying broader philosophical meanings tied to 
+reasoning, structure, and expression. These meanings resonate deeply with Logo's
+original goals. 
+
+For historical background see: 
+- [*Wallace Feurzeig (1984)*](https://www.atariarchives.org/deli/logo.php))
+- [*Brian Harvey
+  (1985/1997)*](https://people.eecs.berkeley.edu/~bh/pdf/v1ch01.pdf), p. 1
+- [*Wallace Feurzeig (2010)](https://link.springer.com/article/10.1007/s10758-010-9168-4)
+- [*Wallace Feurzeig (2011)*](https://www.walden-family.com/waterside/bbn-print2.pdf), S. 291
+- [*Cynthia Solomon et. al. (2020)*](https://dl.acm.org/doi/10.1145/3386329)
+
+---
+
+## From Lisp assumptions to Logo integrity
+
+cLogos began with the mistaken assumption that *Logo is essentially a Lisp*.
+Early experimentation under that assumption made the truth clear:
+
+Logo and Lisp are **close siblings**, but they are **not the same language**,
+and they embody different pedagogical commitments. 
+
+As a result, cLogos deliberately moved away from "Logo as Lisp wear" toward a
+cleaner, Logo-centered design. That shift is formalized in the Charter and
+guides all current and future development. 
+
+---
+
+## Project scope
+
+cLogos is intended to become a **real Logo implementation**, not a simulation
+and not a DSL. 
+
+It treats Logo as:
+
+- Turing-complete
+- high-level
+- general-purpose
+- and uniquely suited to learning in literacy, mathematics, and structural reasoning.
+
+Future directions may explore bridges to other symbolic systems, but **only**
+where such extensions augment Logo-based thinking rather than replace it. 
+
+---
+
+*For the full set of governing principles, see:*
+[**The cLogos Charter**](clogos-charter.markdown)
 
 ## Usage
 
-## Installation
+⚠️ **Status notice**
+cLogos is under active development and is **not yet a complete Logo system**.
+At this stage it primarily targets curious tinkerers who want to explore:
+
+- Logo as a language and a way of thinking,
+- Common Lisp as an implementation medium,
+- and the design of pedagogically honest programming systems.
+
+It is already usable for **experiments, inspection, and learning**, but not yet
+for classroom deployment.
+
+---
+
+### Prerequisites
+
+A working **Common Lisp** environment is required.
+
+The recommended setup is:
+
+- **SBCL**
+- [**Emacs**](https://www.gnu.org/software/emacs/) with 
+  [**SLIME**](https://slime.common-lisp.dev/)
+- [**Quicklisp**](https://www.quicklisp.org/beta/) 
+
+This combination provides a transparent and inspectable development environment,
+well aligned with cLogos’ goals.
+
+---
+
+### Getting started quickly
+
+For a low-threshold, platform-independent jump start, see the small companion
+project:
+
+[**Portaclish**](https://github.com/Lispl-Wicht/Portaclish)
+
+Portaclish aims to get the recommended IDE running with minimal setup effort.
+It is intended for confident beginners and tinkerers rather than complete novices.
+
+---
+
+### Installing and loading cLogos
+
+Clone the cLogos repository into Quicklisp’s canonical directory:
+
+```text
+~/quicklisp/local-projects/
+```
+
+Then, with Emacs and SLIME running:
+```
+CL-USER> (asdf:load-system :clogos)
+```
+
+Enter the core Logo package:
+```
+CL-USER> (in-package #:logo)
+LOGO>
+```
+
+---
+
+### Inspecting Logo from Common Lisp
+
+A fundamental design choice of cLogos is inspectability.
+Logo data and procedures are represented explicitly and can be examined directly
+from Common Lisp.
+
+**Examples:**
+
+```
+LOGO> (word (logo-wd "hell") (logo-wd "o"))
+#S(WD :STR "hello" :NMB NIL :SYM NIL :FLAGS NIL)
+```
+
+```
+LOGO> (lookup-procedure "sum")
+#S(PROC
+   :NAME "sum"
+   :PACKAGE LOGO
+   :IMPLEMENTATION #<FUNCTION SUM>
+   :DEFAULT-ARITY 2
+   :OPTIONAL-ARITY -1
+   :VISIBILITY :PUBLIC)
+```
+
+Custom Logo data types are implemented as **structures**, not CLOS classes.
+This is a deliberate choice: the **Common Lisp Object System (CLOS)** is *not* 
+projected wholesale into Logo’s object model.
+
+---
+
+### Current focus: the reader and parser pipeline
+
+The current development focus is the **Logo reader and parser.***
+
+Its first transformation step resolves the *line continuator* ```~```:
+```
+LOGO> (logo/reader:continue-lines "to foo :bar :baz
+  repeat 4 ~
+   print sum :bar ~
+             :baz
+end")
+```
+Result:
+```
+"to foo :bar :baz
+  repeat 4    print sum :bar              :baz
+end"
+```
+This prepares an intermediate representation that is gradually transformed into
+an evaluable Logo line.
+
+The current pipeline (still incomplete) looks like this:
+```Common-Lisp
+(verbalize-lines
+ (normalize-minus-in-tree
+  (repair-bars
+   (tokenize-segments
+    (preserve-comments
+     (construct-lines
+      (continue-lines "...")))))))
+```
+At this stage:
+
+- **barred words** are not yet fully handled,
+- **minus normalisation* is still incomplete,
+- infix/sign distinctions require refinement.
+
+These limitations are known and documented; they are part of the current work.
+
+---
+
+### What cLogos is good for *right now*
+
+- inspecting cLogos' internal representations,
+- experimenting with reader and parser design,
+- studying Logo and Lisp side by side,
+- thinking about pedagogy, language design, and semantics.
+
+---
+
+### Learning Common Lisp
+
+For readers new to Common Lisp, two books are especially recommended:
+
+- [*Practical Common Lisp*](https://gigamonkeys.com/book/) — Peter Seibel
+  Pragmatic, thorough, and widely regarded as the standard entry point.
+- [*Land of Lisp*](http://landoflisp.com/) — Conrad Barski
+  Playful, motivating, and conceptually solid.
+  
+Both pair well with cLogos’ exploratory nature.

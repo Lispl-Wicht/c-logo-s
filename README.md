@@ -282,8 +282,7 @@ The current pipeline (still incomplete) looks like this:
 At this stage:
 
 - **barred words** are not yet fully handled,
-- **minus normalisation* is still incomplete,
-- infix/sign distinctions require refinement.
+- **minus normalisation** is still incomplete, so infix/sign distinctions require refinement.
 
 These limitations are known and documented; they are part of the current work.
 

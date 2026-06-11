@@ -307,3 +307,9 @@ For readers new to Common Lisp, two books are especially recommended:
   playful, motivating, and conceptually solid.
   
 Both pair well with cLogos’ exploratory nature.
+
+## A sketch of a Lisp/cLogos logo
+
+This could look nice as an SVG in red:
+
+[Logo](Lisp-clogos.jpg)

@@ -250,11 +250,11 @@ projected wholesale into Logo’s object model.
 
 ### Current focus: the reader and parser pipeline
 
-The current development focus is the **Logo reader and parser.***
+The current development focus is the **Logo reader and parser.**
 
 Its first transformation step resolves the *line continuator* ```~```:
 ```
-LOGO> (logo/reader:continue-lines "to foo :bar :baz
+LOGO> (continue-lines "to foo :bar :baz
   repeat 4 ~
    print sum :bar ~
              :baz

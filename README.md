@@ -312,4 +312,4 @@ Both pair well with cLogos’ exploratory nature.
 
 This could look nice as an SVG in red:
 
-[Logo](Lisp-clogos.jpg)
+![Logo](Lisp-clogos.jpg)

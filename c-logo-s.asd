@@ -1,5 +1,5 @@
 (asdf:defsystem "c-logo-s"
-  :version "0.0.1"
+  :version "0.0.2"
   :author "Joachim Heller"
   :license "GPLv3"
   :depends-on ("str" "parse-number")

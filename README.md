@@ -301,9 +301,9 @@ These limitations are known and documented; they are part of the current work.
 
 For readers new to Common Lisp, two books are especially recommended:
 
-- [*Practical Common Lisp*](https://gigamonkeys.com/book/) — Peter Seibel
-  Pragmatic, thorough, and widely regarded as the standard entry point.
-- [*Land of Lisp*](http://landoflisp.com/) — Conrad Barski
-  Playful, motivating, and conceptually solid.
+- [*Practical Common Lisp*](https://gigamonkeys.com/book/) — Peter Seibel;
+  pragmatic, thorough, and widely regarded as the standard entry point.
+- [*Land of Lisp*](http://landoflisp.com/) — Conrad Barski;
+  playful, motivating, and conceptually solid.
   
 Both pair well with cLogos’ exploratory nature.

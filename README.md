@@ -132,6 +132,21 @@ As a result, cLogos deliberately moved away from "Logo as Lisp wear" toward a
 cleaner, Logo-centered design. That shift is formalized in the Charter and
 guides all current and future development. 
 
+So, cLogos is not a new language.
+It is a deliberately designed crossing between two cognitive registers of
+programming and mathematics:
+
+- Procedural / temporal / narrative
+- Algebraic / relational / atemporal
+
+Lisp demonstrated that such a crossing is possible.
+Logo demonstrated that this bridge can be stabilised for learners.
+cLogos is designed to keep the crossing open, inspectable, and reversible.
+
+For conceptual background see:
+- [Heller, Joachim (2026)](https://doi.org/10.13140/RG.2.2.28632.46087)
+- [Heller, Joachim (2025)](https://doi.org/10.18452/36740)
+
 ---
 
 ## Project scope

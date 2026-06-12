@@ -328,3 +328,16 @@ Both pair well with cLogos’ exploratory nature.
 This could look nice as an SVG in red:
 
 ![Logo](Lisp-clogos.jpg)
+
+# License
+
+This educational project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+In short, this means:
+
+- You are free to use, study, modify, and redistribute this software.
+- Any modified or derived works must also be licensed under GPL-3.0.
+- The source code must remain open and available when the software is distributed.
+- The software is provided without warranty.
+
+See the [LICENSE file](LICENSE) for the full license text.

@@ -219,7 +219,8 @@ Clone the cLogos repository into Quicklisp’s canonical directory:
 ```text
 ~/quicklisp/local-projects/
 ```
-With Emacs and SLIME running, first load the external dependencies explicitly: 
+With Emacs and SLIME running, first load the external dependencies explicitly 
+(if they are not already installed): 
 ```
 CL-USER> (ql:quickload '(str parse-number))
 ```
@@ -227,15 +228,15 @@ Then load cLogos via ASDF:
 ```
 CL-USER> (asdf:load-system :c-logo-s)
 ```
-> Although c-logo-s could also be loaded directly via ql:quickload,
-> this project deliberately uses asdf:load-system.
+> Although ```c-logo-s``` could also be loaded directly via ```ql:quickload```,
+> this project deliberately uses ```asdf:load-system```.
 >
 > During development, calling ASDF directly is less forgiving than going
 > through Quicklisp’s convenience layer. Missing or misdeclared dependencies
 > surface immediately, which helps keep the system definition explicit and
 > honest.
 >
-> The required libraries (str and parse-number) are loaded automatically
+> The required libraries (```str``` and ```parse-number```) are loaded automatically
 > when using ql:quickload, but are listed here to make dependencies visible.
 
 Enter the core Logo package:

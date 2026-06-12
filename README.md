@@ -236,14 +236,40 @@ CL-USER> (asdf:load-system :c-logo-s)
 > surface immediately, which helps keep the system definition explicit and
 > honest.
 >
-> The required libraries (```str``` and ```parse-number```) are loaded automatically
-> when using ql:quickload, but are listed here to make dependencies visible.
+> ```ql:quickload``` is only required to *install* missing dependencies.
+> Once the required libraries (`str` and `parse-number`) are present,
+> `asdf:load-system` loads them automatically as declared dependencies.
 
 Enter the core Logo package:
 ```
 CL-USER> (in-package #:logo)
 LOGO>
 ```
+---
+
+#### Tooling philosophy made more explicit
+
+> cLogos distinguishes between **system definition** and **environmental convenience**, 
+> in alignment with its broader commitment to explicit, inspectable structure.
+>
+> The project uses ```asdf:load-system``` as the primary mechanism for loading systems 
+> during development, because ASDF makes dependency structure visible at the point of 
+> definition. This supports the cLogos principle that mechanisms should remain 
+> **locally readable, non-concealed, and pedagogically transparent**, allowing missing 
+> or underspecified dependencies to surface immediately rather than being implicitly 
+> resolved.
+>
+> Quicklisp (```ql:quickload```) is treated as a **distribution and acquisition layer**, 
+> not as a substitute for system definition. It provides a convenient mechanism for 
+> installing external libraries and managing curated releases, but it introduces an 
+> additional layer of environmental mediation that can reduce visibility of incomplete 
+> or implicit system specifications in evolving or experimental development contexts.
+>
+> In accordance with the cLogos Charter, tooling is chosen not for maximal convenience, 
+> but for structural honesty, explicit dependency representation, and preservation of 
+> inspectable computational processes. Quicklisp is therefore used for setup and dependency 
+> acquisition, while ASDF remains the authoritative mechanism for system loading and 
+> development-time structure.
 
 ---
 

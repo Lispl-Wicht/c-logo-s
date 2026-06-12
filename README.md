@@ -115,8 +115,8 @@ For historical background see:
 - [*Brian Harvey
   (1985/1997)*](https://people.eecs.berkeley.edu/~bh/pdf/v1ch01.pdf), p. 1
 - [*Wallace Feurzeig (2010)*](https://link.springer.com/article/10.1007/s10758-010-9168-4)
-- [*Wallace Feurzeig (2011)*](https://www.walden-family.com/waterside/bbn-print2.pdf), S. 291
-- [*Cynthia Solomon et. al. (2020)*](https://dl.acm.org/doi/10.1145/3386329)
+- [*Wallace Feurzeig (2011)*](https://www.walden-family.com/waterside/bbn-print2.pdf), p. 291
+- [*Cynthia Solomon et. al. (2020)*](https://dl.acm.org/doi/10.1145/3386329), p. 20-22
 
 ---
 

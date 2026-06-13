@@ -22,7 +22,7 @@
 
 ## Phase 3
 
-**[BLOS](blos.markdown) (on top of a stable variable system)**
+**[BLOS](conceptual-work/blos.markdown) (on top of a stable variable system)**
 
 - objects as environments
 - ```ask``` / ```talkto```

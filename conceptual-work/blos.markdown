@@ -46,7 +46,7 @@ The Common Lisp implementation artefact (not the semantic center):
   parents)    ; list of blos-object
 ```
 
-The ```defstruct``` supports *storage*, but **meaning emerges from the
+The ```defstruct``` supports *storage*, but **meaning** emerges from the
 evaluator, not from the data structure.
 
 > Crucial distinction:

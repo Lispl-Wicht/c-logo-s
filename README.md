@@ -337,7 +337,7 @@ The current pipeline (still incomplete) looks like this:
 Issues are documented here on [Github](https://github.com/Lispl-Wicht/c-logo-s/issues); 
 they are part of the current work.
 
-The current phase is marked as **[CURRENT]** in the [roadmap](phases.markdown).
+The current phase of development is marked as **[CURRENT]** in the [roadmap](phases.markdown).
 
 ---
 

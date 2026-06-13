@@ -337,6 +337,8 @@ The current pipeline (still incomplete) looks like this:
 Issues are documented here on [Github](https://github.com/Lispl-Wicht/c-logo-s/issues); 
 they are part of the current work.
 
+The current phase is marked as **[CURRENT]** in the [roadmap](phases.markdown).
+
 ---
 
 ### What cLogos is good for *right now*

@@ -334,12 +334,8 @@ The current pipeline (still incomplete) looks like this:
      (construct-lines
       (continue-lines "...")))))))
 ```
-At this stage:
-
-- **barred words** are not yet fully handled,
-- **minus normalisation** is still incomplete, so infix/sign distinctions require refinement.
-
-These limitations are known and documented; they are part of the current work.
+Issues are documented here on [Github](https://github.com/Lispl-Wicht/c-logo-s/issues); 
+they are part of the current work.
 
 ---
 

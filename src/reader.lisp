@@ -277,59 +277,95 @@
         :eof t))
 
 (defun repair-bars (token-tree)
-  "Reconstruct BAR fragments inside (:LINE ...) token structures."
+  "Reconstruct barred words by overriding token boundaries.
 
+A barred word is reconstructed from the original token stream until
+its closing bar is encountered. Inside a barred word, token boundaries
+are treated as non-semantic."
+  
   (destructuring-bind (tag lines &rest meta)
       token-tree
       (declare (ignore tag))
-
     (labels
         ((repair-line (line)
            (destructuring-bind (line-tag tokens &rest line-meta)
                line
-             (declare (ignore line-tag))
-
+               (declare (ignore line-tag))
              (let ((out '())
                    (acc "")
-                   (in-bar nil))
-
-               (labels ((flush-bar ()
-                          (when (> (length acc) 0)
-                            (push (list :quote-name acc :barred t) out))
-                          (setf acc "")))
+                   (in-bar nil)
+                   (first-fragment nil))
+               (labels
+                   ((flush-bar ()
+                      (push (list :quote-name acc :barred t)
+                            out)
+                      (setf acc ""
+                            in-bar nil
+                            first-fragment nil)))
 
                  (dolist (tok tokens)
+
                    (destructuring-bind (type value &rest tok-meta)
                        tok
-
                      (cond
-                       ;; BAR start detection
-                       ((and (eq type :quote-name)
-                             (search "|" value)
-                             (not in-bar))
+
+                       ;; --------------------------------------------------
+                       ;; BAR ENTRY
+                       ;; --------------------------------------------------
+
+                       ((and (not in-bar)
+                             (member type '(:name :quote-name))
+                             (str:starts-with-p "|" value))
+
                         (setf in-bar t
-                              acc (str:trim value
-                                            :char-bag "|")))
+                              first-fragment t
+                              acc (subseq value 1))
 
-                       ;; inside BAR accumulation
+                        ;; one-token barred word: |foo|
+                        (when (str:ends-with-p "|" acc)
+                          (setf acc (subseq acc 0 (1- (length acc))))
+                          (flush-bar)))
+
+                       ;; --------------------------------------------------
+                       ;; INSIDE BAR
+                       ;; --------------------------------------------------
+
                        (in-bar
-                        (setf acc (str:trim (concatenate 'string acc value)
-                                            :char-bag "|") )
 
-                        (when (search "|" value :from-end t)
-                          (flush-bar)
-                          (setf in-bar nil)))
+                        (let ((piece value))
 
-                       ;; normal token (metadata preserved)
+                          ;; quoted fragments lost their leading "
+                          (when (and (eq type :quote-name)
+                                     (not first-fragment))
+                            (setf piece
+                                  (concatenate 'string "\"" piece)))
+
+                          ;; closing fragment?
+                          (if (str:ends-with-p "|" piece)
+
+                              (progn
+                                (setf piece
+                                      (subseq piece
+                                              0
+                                              (1- (length piece))))
+                                (setf acc
+                                      (concatenate 'string acc piece))
+                                (flush-bar))
+
+                              (setf acc
+                                    (concatenate 'string acc piece))))
+
+                        (setf first-fragment nil))
+
+                       ;; --------------------------------------------------
+                       ;; NORMAL TOKEN
+                       ;; --------------------------------------------------
+
                        (t
-                        (push (append (list type value) tok-meta)
+                        (push (append (list type value)
+                                      tok-meta)
                               out)))))
 
-                 ;; safety flush
-                 (when in-bar
-                   (push (list :quote-name acc :barred t) out))
-
-                 ;; rebuild LINE (metadata preserved!)
                  (append (list :line (nreverse out))
                          line-meta))))))
 

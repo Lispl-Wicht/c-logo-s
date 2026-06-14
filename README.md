@@ -367,7 +367,7 @@ This could look nice as an SVG in red:
 
 ![Logo](Lisp-clogos.jpg)
 
-Inspired by this Lisp emblem:
+Inspired by this classic Lisp emblem:
 
 ![Lisp](conceptual-work/Lisp-emblem.png)
 

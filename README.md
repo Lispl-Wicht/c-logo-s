@@ -148,7 +148,7 @@ For conceptual background see:
 - [Heller, Joachim (2025)](https://doi.org/10.18452/36740)
 
 For further historical background see:
-- [Logo Memo II/A.I. Memo 307a (1975)](https://dspace.mit.edu/entities/publication/e872965e-f6e2-423c-885e-33163c9d3d63)
+- [Logo Memo 11a/A.I. Memo 307a (1975)](https://dspace.mit.edu/entities/publication/e872965e-f6e2-423c-885e-33163c9d3d63)
 - [LLOGOS MACLISP source](https://github.com/PDP-10/its/tree/master/src/llogo)
 
 ---

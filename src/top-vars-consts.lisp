@@ -24,4 +24,5 @@
                       :separator " "))
 
 ;; What does the surface convenience mean?
-(defvar *infix-table* (make-hash-table :test 'equal))
+(defparameter *infix-table* (make-hash-table :test 'equal))
+(defparameter *workspace-infix-table* (make-hash-table :test 'equal))

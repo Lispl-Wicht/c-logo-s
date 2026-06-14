@@ -75,10 +75,10 @@
           (list :line text
                 :comment nil)))))
 
-#|(defun preserve-comments (lines)
+(defun preserve-comments (lines)
   (mapcar #'split-comment-in-line lines))
 
-(defun split-bars-in-line (line)
+#|(defun split-bars-in-line (line)
   (destructuring-bind (type text &optional comment-mark comment-text)
       line
     (declare (ignore type))
@@ -121,7 +121,10 @@
 
         (append (list :line (nreverse out))
                 (when comment-mark
-                  (list :comment comment-text)))))))|#
+                  (list :comment comment-text)))))))
+
+(defun preserve-bars (lines)
+  (mapcar #'split-bars-in-line lines))|#
 
 
 ;;;; ======================================================================
@@ -141,6 +144,12 @@
 ;;; :cbracket, :cbrace, :cparen -- ], }, ) ; structural items
 ;;; :whitespace
 ;;; :eof
+;;;
+;;; A token is a pipeline object, classically an indivisable unit of text produced
+;;; by a lexer that is intended to be consumed by later stages as *lexical atoms*.
+;;;
+;;; In cLogos, it is a stable, inspectable, replayable unit of surface
+;;; representation that participates in later structural transformations.
 
 ;; 1st step: Lexical segmentation
 
@@ -150,7 +159,8 @@
 (defun structural-char-p (ch)
   (member ch '(#\[ #\{ #\( #\] #\} #\)) :test #'char=))
 
-(defun infix-char-p (ch)
+(defun infix-prefix-char-p (ch)
+  "Tests whether a character may start an infix operator."
   (member ch '(#\+ #\- #\* #\/ #\^
                #\= #\< #\>
                #\× #\÷ #\⋅ #\≤ #\≥
@@ -159,9 +169,24 @@
 
 (defun delimiter-char-p (ch)
   (or (whitespace-char-p ch)
-      (structural-char-p ch)
-      (infix-char-p ch)))
+      (structural-char-p ch)))
 
+
+(defun read-infix-token (first-char next-char)
+  "Return (VALUES TOKEN CONSUMED-P).
+Prefer two-character infix operators registered in the workspace or
+primitive infix tables."
+
+  (when (and next-char
+             (infix-prefix-char-p first-char))
+    (let ((candidate (str:concat (string first-char)
+                                 (string next-char))))
+      (when (lookup-infix candidate)
+        (return-from read-infix-token
+          (values candidate t)))))
+
+  ;; fallback: primitive single-character infix
+  (values (string first-char) nil))
 
 (defun tokenize-normal (in-str)
   "Tokenize a line string into lexical tokens (NO BAR logic here)."
@@ -191,6 +216,9 @@
 
          (emit-char (type ch)
            (push (list type (string ch)) tokens))
+
+         (emit-infix (str)
+          (push (list :infix str) tokens))
 
          (flush-name ()
            (emit :name)
@@ -230,8 +258,13 @@
                        (#\} :cbrace))
                      ch))
 
-                   ((infix-char-p ch)
-                    (emit-char :infix ch))
+                   ((infix-prefix-char-p ch)
+                    (let ((next (next-char)))
+                      (multiple-value-bind (token consumed)
+                          (read-infix-token ch next)
+                        (emit-infix token)
+                        (unless consumed
+                          (setf pushback next)))))
 
                    (t
                     (write-char ch buf)
@@ -260,6 +293,7 @@
 
       (nreverse tokens))))
 
+
 (defun tokenize-segments (segments)
   "Tokenize a list of (:LINE ...) segments into a full token stream."
 
@@ -285,16 +319,19 @@ are treated as non-semantic."
   
   (destructuring-bind (tag lines &rest meta)
       token-tree
-      (declare (ignore tag))
+    (declare (ignore tag))
+
     (labels
         ((repair-line (line)
            (destructuring-bind (line-tag tokens &rest line-meta)
                line
-               (declare (ignore line-tag))
+             (declare (ignore line-tag))
+
              (let ((out '())
                    (acc "")
                    (in-bar nil)
                    (first-fragment nil))
+
                (labels
                    ((flush-bar ()
                       (push (list :quote-name acc :barred t)
@@ -307,6 +344,7 @@ are treated as non-semantic."
 
                    (destructuring-bind (type value &rest tok-meta)
                        tok
+
                      (cond
 
                        ;; --------------------------------------------------
@@ -380,8 +418,11 @@ are treated as non-semantic."
 ;;                 :names become plain wd-structures
 
 (defun normalize-minus (tokens)
-  "Resolve '-' into either unary MINUS (procedure word)
-   or leave it as infix '-' for later infix processing."
+  "Resolve '-' into either unary MINUS (procedure word) or leave it as infix '-' for later infix processing.
+
+The resolution of cases like 
+sum :a - 4 -> sum :a minus 4
+is deliberately postponed."
   (labels
       (;; --- helpers -------------------------------------------------
        (infix-minus-p (tok)
@@ -436,13 +477,15 @@ are treated as non-semantic."
               tok))))
 
 (defun normalize-line (line)
-  (destructuring-bind (tag tokens &rest meta) line
+  (destructuring-bind (tag tokens &rest meta)
+      line
     (list* tag
            (normalize-minus tokens)
            meta)))
 
 (defun normalize-minus-in-tree (token-tree)
-  (destructuring-bind (tag lines &rest meta) token-tree
+  (destructuring-bind (tag lines &rest meta)
+      token-tree
     (list* tag
            (mapcar #'normalize-line lines)
            meta)))
@@ -483,7 +526,8 @@ are treated as non-semantic."
       (t tok))))
 
 (defun verbalize-line (line)
-  (destructuring-bind (tag tokens &rest meta) line
+  (destructuring-bind (tag tokens &rest meta)
+      line
     (append
      (list tag
            (mapcar #'verbalize-token tokens))
@@ -498,109 +542,35 @@ are treated as non-semantic."
            (mapcar #'verbalize-line lines)
            meta)))
 
-;; Convenience knowledge:
-;;   Infix operators are first-class semantic objects:
-;;   syntax operator descriptors that reorganise their surrounding
-;;   syntactical structure.
-;;
-;;   They are no procedures on their own.
-;;   They are replaced with their prefix procedures
-;;   in prefix position once their operands are determined.
-;;
-;;   Precedence:
-;;     ^        100
-;;     * /       80
-;;     + -       60
-;;     < > =     40
-;;     ←         20 
 
+;; Before infix elimination, arithmetic is only annotated text;
+;; after infix elimination, it becomes executable structure.
 
-(defun define-infix (&key sign (weight 0) procedure)
-  (let* ((name (proc-name procedure))
-         (source (gloss-place procedure :source))
-         (help-wd (enrich-word (logo-wd (gloss-place name :help-text))
-                               :barred t) )
-         (evaluation-model (gloss-place name :evaluation-model))
-         (kind (gloss-place name :kind)))
-    (setf (gethash sign *glossary-table*)
-          (build-gloss-from-definition sign
-                                       source
-                                       :help-text-wd help-wd 
-                                       :evaluation-model evaluation-model
-                                       :kind kind))
+;; Now the moment is reached when this transition begins.
+
+(defun replace-infix-token (token)
+  (cond
+    ((and (wd-p token)
+          (member :infix (wd-flags token)))
+     (or (lookup-infix (wd-str token))
+         token))   ;; unknown infix preserved verbatim
+    (t token)))
+
+(defun replace-infix-line (line)
+  (destructuring-bind (line-tag elements &rest comment)
+      line
     
-    (setf (gethash sign *infix-table*)
-          (make-infix :sign sign
-                      :weight weight
-                      :procedure procedure))))
+    (list* line-tag
+           (mapcar #'replace-infix-token elements)
+           comment)))
 
-(defun lookup-infix (sign)
-  (gethash sign *infix-table*))
+(defun replace-infix-lines (token-tree)
+  (destructuring-bind (tag lines &rest meta)
+      token-tree
+    (list* tag
+           (mapcar #'replace-infix-line lines)
+           meta)))
 
-
-(define-infix :sign "^"
-  :weight 100
-  :procedure (lookup-procedure "power"))
-
-(define-infix :sign "*"
-  :weight 80
-  :procedure (lookup-procedure "product"))
-
-(define-infix :sign "×"
-  :weight 80
-  :procedure (lookup-procedure "product"))
-
-(define-infix :sign "⋅"
-  :weight 80
-  :procedure (lookup-procedure "product"))
-
-(define-infix :sign "/"
-  :weight 80
-  :procedure (lookup-procedure "quotient"))
-
-(define-infix :sign "÷"
-  :weight 80
-  :procedure (lookup-procedure "quotient"))
-
-(define-infix :sign "+"
-  :weight 60
-  :procedure (lookup-procedure "sum"))
-
-(define-infix :sign "-"
-  :weight 60
-  :procedure (lookup-procedure "difference"))
-
-(define-infix :sign "<"
-  :weight 40
-  :procedure (lookup-procedure "lessp"))
-
-(define-infix :sign "<"
-  :weight 40
-  :procedure (lookup-procedure "greaterp"))
-
-(define-infix :sign "="
-  :weight 40
-  :procedure (lookup-procedure "equalp"))
-
-(define-infix :sign "<="
-  :weight 40
-  :procedure (lookup-procedure "lessequalp"))
-
-(define-infix :sign "≤"
-  :weight 40
-  :procedure (lookup-procedure "lessequalp"))
-
-(define-infix :sign ">="
-  :weight 40
-  :procedure (lookup-procedure "greaterequalp"))
-
-(define-infix :sign "≥"
-  :weight 40
-  :procedure (lookup-procedure "greaterequalp"))
-
-;;(define-infix :sign "←"
-;;  :weight 20
-;;  :procedure (lookup-procedure "make"))
 
 ;; 2nd step: Parser (:call AST)
 

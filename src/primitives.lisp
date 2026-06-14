@@ -1450,3 +1450,115 @@ outputs TRUE if its first input is greater than or equal to its second."
                   :default-arity 2
                   :kind :operation)
 
+;;; Infix operators
+;;; ---------------
+;;;
+;;; Convenience knowledge:
+;;;   Infix notation is a surface convenience that is eliminated before
+;;;   evaluation, but after syntactic structure becomes explicit.
+
+;;;   Infix operators are first-class semantic objects:
+;;;   syntax operator descriptors that reorganise their surrounding
+;;;   syntactical structure.
+;;
+;;;   They are no procedures on their own.
+;;;   They are replaced with their prefix procedures
+;;;   in prefix position once their operands are determined.
+;;;
+;;;   Precedence:
+;;;     ^        100
+;;;     * /       80
+;;;     + -       60
+;;;     < > =     40
+;;;     ←         20 
+
+
+(defun define-infix (&key sign (weight 0) procedure)
+  (let* ((name (proc-name procedure))
+         (source (gloss-place procedure :source))
+         (help-wd (enrich-word (logo-wd (gloss-place name :help-text))
+                               :barred t) )
+         (evaluation-model (gloss-place name :evaluation-model))
+         (kind (gloss-place name :kind)))
+    (setf (gethash sign *glossary-table*)
+          (build-gloss-from-definition sign
+                                       source
+                                       :help-text-wd help-wd 
+                                       :evaluation-model evaluation-model
+                                       :kind kind))
+    
+    (setf (gethash sign *infix-table*)
+          (make-infix :sign sign
+                      :weight weight
+                      :procedure procedure))))
+
+(defun lookup-infix (sign)
+  "Return an INFIX structure or NIL. Never signals. Never infers."
+  (or (gethash sign *workspace-infix-table*)
+      (gethash sign *infix-table*)))
+
+
+(define-infix :sign "^"
+  :weight 100
+  :procedure (lookup-procedure "power"))
+
+(define-infix :sign "*"
+  :weight 80
+  :procedure (lookup-procedure "product"))
+
+(define-infix :sign "×"
+  :weight 80
+  :procedure (lookup-procedure "product"))
+
+(define-infix :sign "⋅"
+  :weight 80
+  :procedure (lookup-procedure "product"))
+
+(define-infix :sign "/"
+  :weight 80
+  :procedure (lookup-procedure "quotient"))
+
+(define-infix :sign "÷"
+  :weight 80
+  :procedure (lookup-procedure "quotient"))
+
+(define-infix :sign "+"
+  :weight 60
+  :procedure (lookup-procedure "sum"))
+
+(define-infix :sign "-"
+  :weight 60
+  :procedure (lookup-procedure "difference"))
+
+(define-infix :sign "<"
+  :weight 40
+  :procedure (lookup-procedure "lessp"))
+
+(define-infix :sign ">"
+  :weight 40
+  :procedure (lookup-procedure "greaterp"))
+
+(define-infix :sign "="
+  :weight 40
+  :procedure (lookup-procedure "equalp"))
+
+(define-infix :sign "<="
+  :weight 40
+  :procedure (lookup-procedure "lessequalp"))
+
+(define-infix :sign "≤"
+  :weight 40
+  :procedure (lookup-procedure "lessequalp"))
+
+(define-infix :sign ">="
+  :weight 40
+  :procedure (lookup-procedure "greaterequalp"))
+
+(define-infix :sign "≥"
+  :weight 40
+  :procedure (lookup-procedure "greaterequalp"))
+
+;;(define-infix :sign "←"
+;;  :weight 20
+;;  :procedure (lookup-procedure "make"))
+

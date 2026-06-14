@@ -367,6 +367,10 @@ This could look nice as an SVG in red:
 
 ![Logo](Lisp-clogos.jpg)
 
+Inspired by this Lisp emblem:
+
+![Lisp](conceptual-work/Lisp-emblem.png)
+
 # License
 
 This educational project is licensed under the GNU General Public License v3.0 (GPL-3.0).

@@ -114,8 +114,8 @@ infix operators take place in the workspace (```*workspace-infix-table*```).  Th
 overshadow the stable operators in the core of the language.
 
 **INVARIANT:**
-> ```←``` is *the assignment operator* and *not* part of the infix
-> operator lattice. 
+> ```←``` is *the assignment operator* and *not* part of the
+> arithmetic infix operator lattice. 
 > It has *fixed precedence* and *right associativity* 
 > and *cannot be overridden, shadowed, or redefined.*
 > Additional warning message:

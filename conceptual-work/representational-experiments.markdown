@@ -62,10 +62,11 @@ the following extension is debatable:
 Fostering the invention of own infix symbols to support creative experiences may
 be possible in cLogos by making the representational shift explicit.
 
-For this purpose the keywords ```infix``` and ```weight``` are introduced, e.g.:
+For this purpose the keywords ```infix```, ```weight``` and ```associativity```
+are introduced, e.g.: 
 
 ```logo
-to [my.sum.product infix "?: weight 45] :a :b
+to [my.sum.product infix "*+ weight 45 associativity left] :a :b
   output sum :a product :a :b
 end
 ```
@@ -76,6 +77,7 @@ corresponds with the underlying Common Lisp constructor:
 ```common-lisp
 (define-infix :sign "^"
   :weight 100
+  :associativity :right
   :procedure (lookup-procedure "power"))
 ```
 
@@ -98,18 +100,28 @@ materials. Learners can *invent* symbols only
 Custom infix operators must rely on procedures that are diadic by default, and
 their symbols must not consist of more than two Unicode characters.
 
-**Primitive infix operators** can be modified according to their **weight** with
-the commands:
+**Primitive infix operators** can be modified according to their **weight** and
+associativity with the commands:
 ```logo
 set.infix.weight "+ 70
-set.infix.weight "* 60
+set.infix.assoc "* "right
 ```
-This enables experiments with deviating precedence rules for the traditional
-operators. 
+This enables experiments with deviating precedence rules and conflict resolution
+rules for the traditional operators. 
 
 Modifications of the primitive infix operators and the introduction of custom
 infix operators take place in the workspace (```*workspace-infix-table*```).  They
 overshadow the stable operators in the core of the language.
+
+**INVARIANT:**
+> ```←``` is *the assignment operator* and *not* part of the infix
+> operator lattice. 
+> It has *fixed precedence* and *right associativity* 
+> and *cannot be overridden, shadowed, or redefined.*
+> Additional warning message:
+> "The assignment operator does not compute values; it assigns values to
+>  variables and cannot be redefined.” 
+> But 
 
 ## Alternatives for reconciliation
 

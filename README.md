@@ -221,11 +221,11 @@ Clone the cLogos repository into Quicklisp’s canonical directory:
 ```
 With Emacs and SLIME running, first load the external dependencies explicitly 
 (if they are not already installed): 
-```
+```common-lisp
 CL-USER> (ql:quickload '(str parse-number))
 ```
 Then load cLogos via ASDF:
-```
+```common-lisp
 CL-USER> (asdf:load-system :c-logo-s)
 ```
 > Although ```c-logo-s``` could also be loaded directly via ```ql:quickload```,
@@ -241,7 +241,7 @@ CL-USER> (asdf:load-system :c-logo-s)
 > `asdf:load-system` loads them automatically as declared dependencies.
 
 Enter the core Logo package:
-```
+```common-lisp
 CL-USER> (in-package #:logo)
 LOGO>
 ```
@@ -281,12 +281,12 @@ from Common Lisp.
 
 **Examples:**
 
-```
+```common-lisp
 LOGO> (word (logo-wd "hell") (logo-wd "o"))
 #S(WD :STR "hello" :NMB NIL :SYM NIL :FLAGS NIL)
 ```
 
-```
+```common-lisp
 LOGO> (lookup-procedure "sum")
 #S(PROC
    :NAME "sum"
@@ -308,7 +308,7 @@ projected wholesale into Logo’s object model.
 The current development focus is the **Logo reader and parser.**
 
 Its first transformation step resolves the *line continuator* ```~```:
-```
+```common-lisp
 LOGO> (continue-lines "to foo :bar :baz
   repeat 4 ~
    print sum :bar ~
@@ -316,7 +316,7 @@ LOGO> (continue-lines "to foo :bar :baz
 end")
 ```
 Result:
-```
+```common-lisp
 "to foo :bar :baz
   repeat 4    print sum :bar              :baz
 end"
@@ -325,7 +325,7 @@ This prepares an intermediate representation that is gradually transformed into
 an evaluable Logo line.
 
 The current pipeline (still incomplete) looks like this:
-```Common-Lisp
+```common-lisp
 (verbalize-lines
  (normalize-minus-in-tree
   (repair-bars

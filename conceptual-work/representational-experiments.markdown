@@ -121,7 +121,8 @@ overshadow the stable operators in the core of the language.
 > Additional warning message:
 > "The assignment operator does not compute values; it assigns values to
 >  variables and cannot be redefined.” 
-> But 
+> But still, the error messages is:
+> "set.infix.weight/set.infix.assoc doesn't like ← as input."
 
 ## Alternatives for reconciliation
 

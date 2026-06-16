@@ -258,6 +258,113 @@ primitive infix tables."
 
       (nreverse tokens))))
 
+#|(defun tokenize-normal (in-str)
+  "Tokenize a Logo line with correct unary-minus handling."
+
+  (let ((i 0)
+        (len (length in-str))
+        (pushback nil)
+        (state :start)
+        (buf (make-string-output-stream))
+        (tokens '())
+        (prev-type nil))   ;; <<< IMPORTANT FIX
+
+    (labels
+        ((next-chr ()
+           (if pushback
+               (prog1 pushback
+                 (setf pushback nil))
+               (when (< i len)
+                 (prog1 (char in-str i)
+                   (incf i)))))
+
+         (peek-chr ()
+           (if (< i len)
+               (char in-str i)
+               nil))
+
+         (emit (type value)
+           (let ((tok (list type value)))
+             (push tok tokens)
+             (setf prev-type type)))
+
+         (emit-simple (type value)
+           (emit type value))
+
+         (flush-name ()
+           (emit :name (get-output-stream-string buf))
+           (setf buf (make-string-output-stream)))
+
+         (flush-quote ()
+           (emit :quote-name
+                 (get-output-stream-string buf))
+           (setf buf (make-string-output-stream))))
+
+      ;; ---------------- MAIN LOOP ----------------
+      (loop for ch = (next-chr)
+            while ch do
+
+              (ecase state
+
+                (:start
+                 (cond
+                   ((whitespace-char-p ch)
+                    (emit :whitespace ch))
+
+                   ((char= ch #\")
+                    (setf state :in-quote))
+
+                   ((char= ch #\()
+                    (emit :oparen "("))
+
+                   ((char= ch #\))
+                    (emit :cparen ")"))
+
+                   ((char= ch #\[)
+                    (emit :obracket "["))
+
+                   ((char= ch #\])
+                    (emit :cbracket "]"))
+
+                   ((char= ch #\-)
+                    ;; =================================================
+                    ;; FIXED UNARY LOGIC (uses prev-type, not prev-token)
+                    ;; =================================================
+                    (let ((next (peek-chr)))
+                      (if (and (or (null prev-type)
+                                   (member prev-type
+                                           '(:infix :oparen :obracket :obrace)))
+                               next
+                               (not (whitespace-char-p next)))
+                          (emit :minus "minus")
+                          (emit :infix "-"))))
+
+                   (t
+                    (write-char ch buf)
+                    (setf state :in-name))))
+
+                (:in-name
+                 (if (or (whitespace-char-p ch)
+                         (member ch '(#\( #\) #\[ #\] #\-)))
+                     (progn
+                       (flush-name)
+                       (setf pushback ch)
+                       (setf state :start))
+                     (write-char ch buf)))
+
+                (:in-quote
+                 (if (char= ch #\")
+                     (progn
+                       (flush-quote)
+                       (setf state :start))
+                     (write-char ch buf)))))
+
+      ;; final flush
+      (when (eq state :in-name)
+        (flush-name))
+
+      (nreverse tokens))))|#
+
 (defun tokenize-segments (segments)
   "Tokenize a list of (:LINE ...) segments into a full token stream."
 
@@ -538,7 +645,26 @@ If KEY does not exist, KEY and VALUE are appended."
 (defun normalize-minus (tokens)
   "Resolve '-' into either unary MINUS (procedure word) or leave it as infix '-' for later infix processing.
 
-The resolution of cases like  sum :a - 4 -> sum :a minus 4 is deliberately postponed."
+At this stage, the function mirrors Berkeley Logo’s treatment of minus with respect to whitespace-sensitive unary vs. infix interpretation which is mandatory for cLogos, e.g.:
+
+  ? (print 4 - 2 - 1)
+  1
+  ? (print 4 - 2 -1)
+  2 -1
+  ? (print 4 -2 -1)
+  4 -2 -1
+  ? (print 4-2 -1)
+  2 -1
+
+An (:INFIX "-") token is rewritten as unary MINUS if it does not immediately follow a token that may terminate an expression.
+
+In compliance with the cLogos Charter, this pass performs only local, syntactic disambiguation. Semantic resolution of cases such as
+
+  sum :a - 4  →  sum :a minus 4
+
+is deliberately postponed.
+
+Likewise, lexical contractions like '4-2' are preserved as a :NAME token at this stage and resolved later in the pipeline." 
   (labels
       (;; --- helpers -------------------------------------------------
        (infix-minus-p (tok)
@@ -552,18 +678,12 @@ The resolution of cases like  sum :a - 4 -> sum :a minus 4 is deliberately postp
                        (numeric-literal-p (second tok)))
                   (eq (first tok) :thing))))
 
-       (expression-end-p (tok-or-wd)
-         (cond (;; lexical values
-                (value-token-p tok-or-wd) t)
-
-               ;; closing delimiters
-               ((member (first tok-or-wd)
-                        '(:cparen :cbracket :cbrace)) t)
-
-               ;;((procedure-candidate-p tok-or-wd) t)
-
-               ;; otherwise
-               (t nil)))
+       (syntactic-value-end-p (tok-or-wd)
+         (or ;; lexical values
+             (value-token-p tok-or-wd)
+             ;; closing delimiters
+             (member (first tok-or-wd)
+                     '(:cparen :cbracket :cbrace))))
 
        (previous-significant-token (tokens pos)
          (loop :for i :downfrom (1- pos) :to 0
@@ -572,10 +692,15 @@ The resolution of cases like  sum :a - 4 -> sum :a minus 4 is deliberately postp
                :unless (eq (first tok) :whitespace)
                :do (return tok)))
 
-       (unary-minus-p (tokens pos)
+       (unary-minus-by-left-context-p (tokens pos)
          (let ((prev (previous-significant-token tokens pos)))
            (not (and prev
-                     (expression-end-p prev)))))
+                     (syntactic-value-end-p prev)))))
+
+       (next-token-adjacent-p (tokens pos)
+         (let ((next (nth (1+ pos) tokens)))
+           (and next
+                (not (eq (first next) :whitespace)))))
 
        (make-minus-wd ()
          (make-wd :str "minus"
@@ -588,7 +713,8 @@ The resolution of cases like  sum :a - 4 -> sum :a minus 4 is deliberately postp
           for pos from 0
           collect
           (if (and (infix-minus-p tok)
-                   (unary-minus-p tokens pos))
+                   (or (unary-minus-by-left-context-p tokens pos)
+                       (next-token-adjacent-p tokens pos)))
               (make-minus-wd)
               tok))))
 

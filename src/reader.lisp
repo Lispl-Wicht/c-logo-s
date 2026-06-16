@@ -536,9 +536,11 @@ If KEY does not exist, KEY and VALUE are appended."
 ;;                 :names become plain wd-structures
 
 (defun normalize-minus (tokens)
-  "Resolve '-' into either unary MINUS (procedure word) or leave it as infix '-' for later infix processing.
+  "Resolve '-' into either unary MINUS (procedure word) or leave it as infix '-'
+for later infix processing.
 
-At this stage, the function mirrors Berkeley Logo’s treatment of minus with respect to whitespace-sensitive unary vs. infix interpretation which is mandatory for cLogos, e.g.:
+At this stage, the function mirrors Berkeley Logo’s whitespace-sensitive
+treatment of minus, which is mandatory for cLogos, e.g.:
 
   ? (print 4 - 2 - 1)
   1
@@ -549,15 +551,25 @@ At this stage, the function mirrors Berkeley Logo’s treatment of minus with re
   ? (print 4-2 -1)
   2 -1
 
-An (:INFIX "-") token is rewritten as unary MINUS if it does not immediately follow a token that may terminate an expression.
+An (:INFIX \"-\") token is rewritten as unary MINUS if either
 
-In compliance with the cLogos Charter, this pass performs only local, syntactic disambiguation. Semantic resolution of cases such as
+  - it does not immediately follow a token that may terminate an expression
+    (left-context rule), or
+  - it is immediately adjacent to the following token without intervening
+    whitespace (right-adjacency rule).
+
+Together, these local criteria reproduce Berkeley Logo’s syntactic
+disambiguation of unary vs. infix minus.
+
+In compliance with the cLogos Charter, this pass performs only local,
+syntax-level disambiguation. Semantic resolution of cases such as
 
   sum :a - 4  →  sum :a minus 4
 
 is deliberately postponed.
 
-Likewise, lexical contractions like '4-2' are preserved as a :NAME token at this stage and resolved later in the pipeline." 
+Likewise, lexical contractions like '4-2' are preserved as :NAME tokens at this
+stage and resolved later in the pipeline."
   (labels
       (;; --- helpers -------------------------------------------------
        (infix-minus-p (tok)

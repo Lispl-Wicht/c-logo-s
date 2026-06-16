@@ -332,11 +332,13 @@ The current pipeline (still incomplete) looks like this:
 ```common-lisp
 (verbalize-lines
  (normalize-minus-in-tree
-  (repair-bars
-   (tokenize-segments
-    (preserve-comments
-     (construct-lines
-      (continue-lines "...")))))))
+  (check-structural-balance
+   (repair-bars
+    (tokenize-segments
+     (number-lines
+      (preserve-comments
+       (construct-lines
+        (continue-lines "...")))))))
 ```
 Issues are documented here on [Github](https://github.com/Lispl-Wicht/c-logo-s/issues); 
 they are part of the current work.

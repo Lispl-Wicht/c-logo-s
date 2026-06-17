@@ -553,9 +553,9 @@ treatment of minus, which is mandatory for cLogos, e.g.:
 
 An (:INFIX \"-\") token is rewritten as unary MINUS if either
 
-  - it does not immediately follow a token that may terminate an expression
+  • it does not immediately follow a token that may terminate an expression
     (left-context rule), or
-  - it is immediately adjacent to the following token without intervening
+  • it is immediately adjacent to the following token without intervening
     whitespace (right-adjacency rule).
 
 Together, these local criteria reproduce Berkeley Logo’s syntactic
@@ -569,7 +569,7 @@ syntax-level disambiguation. Semantic resolution of cases such as
 is deliberately postponed.
 
 Likewise, lexical contractions like '4-2' are preserved as :NAME tokens at this
-stage and resolved later in the pipeline."
+stage and resolved later in the pipeline." 
   (labels
       (;; --- helpers -------------------------------------------------
        (infix-minus-p (tok)
@@ -633,7 +633,8 @@ stage and resolved later in the pipeline."
 (defun normalize-minus-in-tree (token-tree)
   (destructuring-bind (tag lines &rest meta)
       token-tree
-    (list* tag
+      (declare (ignore tag))
+    (list* :document
            (mapcar #'normalize-line lines)
            meta)))
 

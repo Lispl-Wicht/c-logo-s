@@ -330,16 +330,18 @@ an evaluable Logo line.
 
 The current pipeline (still incomplete) looks like this:
 ```common-lisp
-(replace-infix-lines                  ;           ^
- (verbalize-lines                     ;           |
-  (normalize-minus-in-tree            ;           |
-   (check-structural-balance          ;           |
-    (repair-bars                      ;           |
-     (tokenize-segments               ;           |
-      (number-lines                   ;           |
-       (preserve-comments             ;           |
-        (construct-lines              ;           |
-         (continue-lines "..."))))))) ;           _
+(replace-infix-in-document              ;           ^
+ (decontract-infix-words-in-document    ;           |
+  (minus-sanity-check-in-document       ;           |
+   (verbalize-document                  ;           |
+    (normalize-minus-in-tree            ;           |
+     (check-structural-balance          ;           |
+      (repair-bars                      ;           |
+       (tokenize-segments               ;           |
+        (number-lines                   ;           |
+         (preserve-comments             ;           |
+          (construct-lines              ;           |
+           (continue-lines "..."))))))) ;           _
 ```
 **surface normalisation:**
 - ```continue-lines```
@@ -357,9 +359,10 @@ The current pipeline (still incomplete) looks like this:
 **syntactic refinement:**
 - ```normalize-minus-in-tree```
 - ```verbalize-lines```
+- ```minus-sanity-check-in-document```
+- ```decontract-infix-words-in-document```
   
 **semantic binding:**
-- ```replace-infix-lines```
 
 Issues are documented here on [Github](https://github.com/Lispl-Wicht/c-logo-s/issues); 
 they are part of the current work.

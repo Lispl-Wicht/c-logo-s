@@ -608,10 +608,7 @@ stage and resolved later in the pipeline."
                 (not (eq (first next) :whitespace)))))
 
        (make-minus-wd ()
-         (make-wd :str "minus"
-                  :nmb nil
-                  :sym 'logo:minus
-                  :flags nil)))
+         (enrich-word (logo-wd "minus") :generated t)))
 
     ;; --- main pass --------------------------------------------------
     (loop for tok in tokens
@@ -681,13 +678,171 @@ stage and resolved later in the pipeline."
            (mapcar #'verbalize-token tokens))
      meta)))
 
-(defun verbalize-lines (token-tree)
+(defun verbalize-document (token-tree)
   "Convert all word-producing tokens into WD structures."
   
   (destructuring-bind (tag lines &rest meta)
       token-tree
     (list* tag
            (mapcar #'verbalize-line lines)
+           meta)))
+
+(defun all-infix-signs ()
+  "Return a vector of all registered infix operator signs."
+  (let ((signs (make-array 0 :adjustable t :fill-pointer 0)))
+    (maphash (lambda (key infix)
+               (declare (ignore infix))
+               (vector-push-extend key signs))
+             *infix-table*)
+    (maphash (lambda (key infix)
+               (declare (ignore infix))
+               (vector-push-extend key signs))
+             *workspace-infix-table*)
+    signs))
+
+(defun contains-infix-signs-p (str)
+  "Return T if STR contains any registered infix operator."
+  (let ((ops (all-infix-signs)))
+      (loop for op across ops
+            thereis (str:containsp op str))))
+
+(defun scan-infix-span (str start)
+  "Return longest valid infix operator starting at START or NIL."
+  (let ((best nil)
+        (best-len 0))
+    (dolist (op (coerce (all-infix-signs) 'list))
+      (let ((len (length op)))
+        (when (and (>= (length str) (+ start len))
+                   (string= op (subseq str start (+ start len))))
+          (when (> len best-len)
+            (setf best op
+                  best-len len)))))
+    best))
+
+(defun resolve-infix-spans (str)
+  (labels ((walk (i acc)
+             (if (>= i (length str))
+                 (nreverse acc)
+                 (let ((op (scan-infix-span str i)))
+                   (cond
+                     ;; operator found
+                     (op
+                      (walk (+ i (length op))
+                            (cons (list :infix op) acc)))
+
+                     ;; accumulate normal substring
+                     (t
+                      (let ((start i))
+                        (loop while (and (< i (length str))
+                                         (null (scan-infix-span str i)))
+                              do (incf i))
+                        (walk i
+                              (cons (subseq str start i) acc)))))))))
+    (walk 0 nil)))
+
+(defun decontract-infix-word-string (str)
+  (mapcar (lambda (el)
+            (cond
+              ((consp el)
+               el)
+
+              ((and (stringp el)
+                    (> (length el) 0)
+                    (char= (char el 0) #\:))
+               (list :thing (subseq el 1)))
+
+              (t
+               (list :name el))))
+          (resolve-infix-spans str)))
+
+(defun decontract-infix-words-in-line (line)
+  (destructuring-bind (line-tag elements &rest meta) line
+    (list* line-tag
+           (mapcan (lambda (el)
+                     (cond
+                       ;; case 1: WD token
+                       ((and (wd-p el)
+                             (contains-infix-signs-p (wd-str el)))
+                        (decontract-infix-word-string (wd-str el)))
+
+                       ;; case 2: raw string
+                       ((stringp el)
+                        (decontract-infix-word-string el))
+
+                       ;; case 3: already structured token
+                       (t
+                        (list el))))
+                   elements)
+           meta)))
+
+(defun decontract-infix-words-in-document (doc)
+  (destructuring-bind (tag lines &rest meta) doc
+    (verbalize-lines (list* tag
+                            (mapcar #'decontract-infix-words-in-line lines)
+                            meta))))
+
+;; ---------------- general helpers for whitespace skipping -----
+
+(defun significant-token-p (tok)
+  (or (wd-p tok)
+      (not (eq (first tok) :whitespace))))
+
+(defun next-significant (tokens i)
+  (loop for j from (1+ i) below (length tokens)
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
+
+(defun prev-significant (tokens i)
+  (loop for j from (1- i) downto 0
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
+
+;; ----------------- 2nd minus normalization ---------------------
+
+(defun minus-sanity-check-in-line (line)
+  (labels ((generated-minus-p (el)
+           (when (and (wd-p el)
+                      (string= (wd-str el) "minus")
+                      (member :generated (wd-flags el)))
+             T))
+         
+           (value-start-p (tok)
+             (or (numberp (wd-nmb tok))
+                 (member :thin (wd-flags tok))))
+
+           (invalid-minus-position-p (prev next)
+             (and prev next
+                  (completed-expression-p prev)
+                  (value-start-p next)))
+
+           (completed-expression-p (tok)
+             (cond ((wd-p tok)
+                    (or (numberp (wd-nmb tok))
+                        (member :thing (wd-flags tok))))
+                   ((consp tok)
+                    (member (first tok) '(:cparen :cbracket :cbrace))))))
+    
+    (destructuring-bind (tag tokens &rest meta) line
+      (list* tag
+             (loop for tok in tokens
+                   for i from 0
+                   collect
+                   (if (and (wd-p tok)
+                            (generated-minus-p tok))
+                       (let ((prev (prev-significant tokens i))
+                             (next (next-significant tokens i)))
+                         (if (invalid-minus-position-p prev next)
+                             (enrich-word (logo-wd "-") :infix t)
+                             tok))
+                       tok))
+             meta))))
+
+(defun minus-sanity-check-in-document (document)
+  (destructuring-bind (tag lines &rest meta) document
+    (list* tag
+           (mapcar #'minus-sanity-check-in-line lines)
            meta)))
 
 
@@ -697,14 +852,13 @@ stage and resolved later in the pipeline."
 ;; Now the moment is reached when this transition begins.
 
 (defun replace-infix-token (token)
-  (cond
-    ((and (wd-p token)
-          (member :infix (wd-flags token)))
-     (or (lookup-infix (wd-str token))
-         token))   ;; unknown infix preserved verbatim
-    (t token)))
+  (cond ((and (wd-p token)
+              (member :infix (wd-flags token)))
+         (or (lookup-infix (wd-str token))
+             token)) ;; unknown infix preserved verbatim        
+        (t token)))
 
-(defun replace-infix-line (line)
+(defun replace-infix-in-line (line)
   (destructuring-bind (line-tag elements &rest comment)
       line
     
@@ -712,15 +866,35 @@ stage and resolved later in the pipeline."
            (mapcar #'replace-infix-token elements)
            comment)))
 
-(defun replace-infix-lines (token-tree)
+(defun replace-infix-in-document (document)
   (destructuring-bind (tag lines &rest meta)
-      token-tree
+      document
     (list* tag
-           (mapcar #'replace-infix-line lines)
+           (mapcar #'replace-infix-in-line lines)
            meta)))
 
+(defun replace-first-order-procedure-words (thing)
+  (cond ((and (wd-p thing)
+              (not (wd-nmb thing))
+              (or (not (wd-flags thing))
+                  (member :generated (wd-flags thing))) )
+         (lookup-procedure (wd-str thing)))
+        (t thing)))
 
+(defun replace-first-order-proc-words-in-line (line)
+  (destructuring-bind (line-tag elements &rest comment)
+      line
+    
+    (list* line-tag
+           (mapcar #'replace-first-order-procedure-words elements)
+           comment)))
 
+(defun replace-first-order-proc-words-in-document (document)
+  (destructuring-bind (tag lines &rest meta)
+      document
+    (list* tag
+           (mapcar #'replace-first-order-proc-words-in-line lines)
+           meta)))
 
 ;; 2nd step: Parser (:call AST)
 

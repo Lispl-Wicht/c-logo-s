@@ -296,7 +296,7 @@ outputs a plain Logo word."
            :sym nil
            :flags '()))
 
-(defun enrich-word (wd &key quoted thing infix barred)
+(defun enrich-word (wd &key quoted thing infix barred generated)
   "ENRICH-WORD wd &key quoted thing infix barred (internal constructor)
 
 outputs a Logo word with meta information about its provenance. "
@@ -308,7 +308,8 @@ outputs a Logo word with meta information about its provenance. "
                                   (when quoted '(:quoted))
                                   (when thing  '(:thing))
                                   (when infix  '(:infix))
-                                  (when barred '(:barred))))))
+                                  (when barred '(:barred))
+                                  (when generated '(:generated))))))
 
 ;; COERCION
 ;; Meaning: Coercion defines how non-Logo values enter
@@ -1473,7 +1474,7 @@ outputs TRUE if its first input is greater than or equal to its second."
 ;;;     ←         20 
 
 
-(defun define-infix (&key sign (weight 0) procedure)
+(defun define-infix (&key sign (weight 0) associativity procedure)
   (let* ((name (proc-name procedure))
          (source (gloss-place procedure :source))
          (help-wd (enrich-word (logo-wd (gloss-place name :help-text))
@@ -1490,6 +1491,7 @@ outputs TRUE if its first input is greater than or equal to its second."
     (setf (gethash sign *infix-table*)
           (make-infix :sign sign
                       :weight weight
+                      :associativity associativity
                       :procedure procedure))))
 
 (defun lookup-infix (sign)
@@ -1500,65 +1502,82 @@ outputs TRUE if its first input is greater than or equal to its second."
 
 (define-infix :sign "^"
   :weight 100
+  :associativity :right
   :procedure (lookup-procedure "power"))
 
 (define-infix :sign "*"
   :weight 80
+  :associativity :left
   :procedure (lookup-procedure "product"))
 
 (define-infix :sign "×"
   :weight 80
+  :associativity :left
   :procedure (lookup-procedure "product"))
 
 (define-infix :sign "⋅"
   :weight 80
+  :associativity :left
   :procedure (lookup-procedure "product"))
 
 (define-infix :sign "/"
   :weight 80
+  :associativity :left
   :procedure (lookup-procedure "quotient"))
 
 (define-infix :sign "÷"
   :weight 80
+  :associativity :left
   :procedure (lookup-procedure "quotient"))
 
 (define-infix :sign "+"
   :weight 60
+  :associativity :left
   :procedure (lookup-procedure "sum"))
 
 (define-infix :sign "-"
   :weight 60
+  :associativity :left
   :procedure (lookup-procedure "difference"))
 
 (define-infix :sign "<"
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "lessp"))
 
 (define-infix :sign ">"
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "greaterp"))
 
 (define-infix :sign "="
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "equalp"))
 
 (define-infix :sign "<="
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "lessequalp"))
 
 (define-infix :sign "≤"
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "lessequalp"))
 
 (define-infix :sign ">="
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "greaterequalp"))
 
 (define-infix :sign "≥"
   :weight 40
+  :associativity :left
   :procedure (lookup-procedure "greaterequalp"))
 
+;; The ```make``` operator is write-protected!
 ;;(define-infix :sign "←"
 ;;  :weight 20
+;;  :associativity :right
 ;;  :procedure (lookup-procedure "make"))
 

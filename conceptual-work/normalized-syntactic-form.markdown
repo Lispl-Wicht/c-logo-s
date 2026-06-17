@@ -116,7 +116,8 @@ No evaluation, no arity reasoning, no procedure lookup.
 Example:
 
 ```logo
-sum :a - 4```
+sum :a - 4
+```
 
 remains unresolved semantically -- correctly.
 

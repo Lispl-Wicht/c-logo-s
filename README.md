@@ -15,7 +15,7 @@
 
 ## The Common (Lisp) Logo Setup cLogos
  
-Version 0.0.2 (11 June 2026)
+Version 0.0.2 (11 June 2026 -- 18 June 2026)
  
 *cLogos* is a faithful, living implementation of
 [**Berkeley Logo**](https://github.com/jrincayc/ucblogo-code), written in
@@ -330,19 +330,20 @@ an evaluable Logo line.
 
 The current pipeline (still incomplete) looks like this:
 ```common-lisp
-(replace-first-order-proc-words-in-document ;        ^
- (replace-infix-in-document                 ;        |
-  (minus-sanity-check-in-document           ;        |
-   (decontract-infix-words-in-document      ;        |
-    (verbalize-document                     ;        |
-     (normalize-minus-in-tree               ;        |
-      (check-structural-balance             ;        |
-       (repair-bars                         ;        |
-        (tokenize-segments                  ;        |
-         (number-lines                      ;        |
-          (preserve-comments                ;        |
-           (construct-lines                 ;        |
-            (continue-lines "...")))))))    ;        _
+(replace-first-order-proc-words-in-document   ;        ^
+ (replace-infix-in-document                   ;        |
+  (minus-sanity-check-in-document             ;        |
+   (decontract-infix-words-in-document        ;        |
+     (flag-scope-introducer-in-document       ;        |
+      (verbalize-document                     ;        |
+       (normalize-minus-in-tree               ;        |
+        (check-structural-balance             ;        |
+         (repair-bars                         ;        |
+          (tokenize-segments                  ;        |
+           (number-lines                      ;        |
+            (preserve-comments                ;        |
+             (construct-lines                 ;        |
+              (continue-lines "...")))))))    ;        _
 ```
 **surface normalisation:**
 - ```continue-lines```
@@ -360,6 +361,7 @@ The current pipeline (still incomplete) looks like this:
 **syntactic refinement:**
 - ```normalize-minus-in-tree```
 - ```verbalize-lines```
+- 
 - ```minus-sanity-check-in-document```
 - ```decontract-infix-words-in-document```
   

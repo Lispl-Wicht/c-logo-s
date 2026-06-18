@@ -334,6 +334,7 @@ The current pipeline (still incomplete) looks like this:
  (replace-infix-in-document                   ;        |
   (minus-sanity-check-in-document             ;        |
    (decontract-infix-words-in-document        ;        |
+    (flag-lexical-bindings-in-document        ;        |
      (flag-scope-introducer-in-document       ;        |
       (verbalize-document                     ;        |
        (normalize-minus-in-tree               ;        |
@@ -361,7 +362,8 @@ The current pipeline (still incomplete) looks like this:
 **syntactic refinement:**
 - ```normalize-minus-in-tree```
 - ```verbalize-lines```
-- 
+- ```flag-scope-introducer-in-document``` (Charter Sec. 4)
+- ```flag-lexical-bindings-in-document``` (Charter Sec. 4)
 - ```minus-sanity-check-in-document```
 - ```decontract-infix-words-in-document```
   

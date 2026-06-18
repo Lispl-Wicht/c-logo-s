@@ -1,5 +1,7 @@
 (in-package #:logo)
 
+;;;; No structure in this system is both semantic and presentational.
+
 ;;;; ======================================================================
 ;;;;
 ;;;;                         Procedure and gloss struct
@@ -55,8 +57,11 @@
   ;; Interned symbol or NIL (identifier semantics)
   (sym nil :type (or symbol null) :read-only t)
 
+  ;; Lowercase cached name for syntactic keywords
+  (syntkey nil :type (or string null) :read-only t)
+  
   ;; Creation / lexical context flags
-  ;; Possible values: :quoted :thing :infix :barred ...
+  ;; Possible values: :quoted :thing :infix :barred :generated ...
   (flags '() :type list :read-only t))
 
 ;;;; ======================================================================
@@ -67,7 +72,8 @@
 
 (defstruct infix
   (sign nil :type (or string null))     ; surface language
-  (weight 0 :type number)        ; syntax-directed transformation (associativiy)
+  (weight 0 :type number) ; syntax-directed transformation, precedence
+  (associativity nil :type symbol) ; :LEFT, :RIGHT, :NONE
   (procedure nil :type (or proc null))) ; semantic core
 
 

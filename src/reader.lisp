@@ -172,12 +172,22 @@ primitive infix tables."
                  (prog1 (char in-str i)
                    (incf i)))))
 
-         (emit (type &optional barred)
+         #|(emit (type &optional barred)
            (if (and (eq :quote-name type)
                        (not barred))
                (push (list type (get-output-stream-string buf) :barred nil) tokens)
                (push (list type (get-output-stream-string buf)) tokens))
             (setf buf (make-string-output-stream)))
+
+         (emit (type &rest props)
+           (push (list* type
+                        (get-output-stream-string buf)
+                        props)
+                 tokens)
+           (setf buf (make-string-output-stream)))|#
+
+         (emit (type str &rest props)
+           (push (list* type str props) tokens))
 
          (emit-char (type ch)
            (push (list type (string ch)) tokens))
@@ -185,70 +195,93 @@ primitive infix tables."
          (emit-infix (str)
           (push (list :infix str) tokens))
 
-         (flush-name ()
+         #|(flush-name ()
            (emit :name)
+           (setf state :start))|#
+
+         #|(flush-name ()
+           (let ((s (get-output-stream-string buf)))
+             (emit :name s
+                   :syntkey (string-downcase s)))
+           (setf state :start))|#
+
+         (flush-name ()
+           (let ((s (get-output-stream-string buf)))
+             (emit :name s
+                   :syntkey (string-downcase s)))
+           (setf buf (make-string-output-stream))
            (setf state :start))
+
+         #|(flush-quote-name (&optional barred)
+           (emit :quote-name barred)
+           (setf state :start))|#
 
          (flush-quote-name (&optional barred)
-           (emit :quote-name barred)
+           (emit :quote-name (get-output-stream-string buf)
+                 :barred barred)
+           (setf buf (make-string-output-stream))
            (setf state :start))
 
-         (flush-thing ()
+         #|(flush-thing ()
            (emit :thing)
+           (setf state :start))|#
+
+         (flush-thing ()
+           (emit :thing (get-output-stream-string buf))
+           (setf buf (make-string-output-stream))
            (setf state :start)))
+      (loop :for ch := (next-char)
+            :while ch :do
+            (ecase state
+              
+              (:start
+                  (cond
+                    ((whitespace-char-p ch)
+                     (emit-char :whitespace ch))
 
-      (loop for ch = (next-char)
-            while ch do
-              (ecase state
+                    ((char= ch #\")
+                     (setf state :in-quote-name))
 
-                (:start
-                 (cond
-                   ((whitespace-char-p ch)
-                    (emit-char :whitespace ch))
+                    ((char= ch #\:)
+                     (setf state :in-thing))
 
-                   ((char= ch #\")
-                    (setf state :in-quote-name))
+                    ((structural-char-p ch)
+                     (emit-char
+                      (ecase ch
+                        (#\[ :obracket)
+                        (#\] :cbracket)
+                        (#\( :oparen)
+                        (#\) :cparen)
+                        (#\{ :obrace)
+                        (#\} :cbrace))
+                      ch))
 
-                   ((char= ch #\:)
-                    (setf state :in-thing))
+                    ((infix-prefix-char-p ch)
+                     (let ((next (next-char)))
+                       (multiple-value-bind (token consumed)
+                           (read-infix-token ch next)
+                         (emit-infix token)
+                         (unless consumed
+                           (setf pushback next)))))
 
-                   ((structural-char-p ch)
-                    (emit-char
-                     (ecase ch
-                       (#\[ :obracket)
-                       (#\] :cbracket)
-                       (#\( :oparen)
-                       (#\) :cparen)
-                       (#\{ :obrace)
-                       (#\} :cbrace))
-                     ch))
+                    (t
+                     (write-char ch buf)
+                     (setf state :in-name))))
 
-                   ((infix-prefix-char-p ch)
-                    (let ((next (next-char)))
-                      (multiple-value-bind (token consumed)
-                          (read-infix-token ch next)
-                        (emit-infix token)
-                        (unless consumed
-                          (setf pushback next)))))
+                 (:in-name
+                  (if (delimiter-char-p ch)
+                      (progn (flush-name) (setf pushback ch))
+                      (write-char ch buf)))
 
-                   (t
-                    (write-char ch buf)
-                    (setf state :in-name))))
+                 (:in-quote-name
+                  (if (delimiter-char-p ch)
+                      (progn (flush-quote-name) (setf pushback ch))
+                      (write-char ch buf)))
 
-                (:in-name
-                 (if (delimiter-char-p ch)
-                     (progn (flush-name) (setf pushback ch))
-                     (write-char ch buf)))
-
-                (:in-quote-name
-                 (if (delimiter-char-p ch)
-                     (progn (flush-quote-name) (setf pushback ch))
-                     (write-char ch buf)))
-
-                (:in-thing
-                 (if (delimiter-char-p ch)
-                     (progn (flush-thing) (setf pushback ch))
-                     (write-char ch buf)))))
+                 (:in-thing
+                  (if (delimiter-char-p ch)
+                      (progn (flush-thing) (setf pushback ch))
+                      (write-char ch buf)))))
 
       (ecase state
         (:start nil)
@@ -670,6 +703,45 @@ stage and resolved later in the pipeline."
       ;; fallback
       (t tok))))
 
+(defun verbalize-token (tok)
+  (labels ((word-token-p (type)
+             (member type '(:name :thing :quote-name :infix)))
+           (registered-syntkey-p (s)
+             (and s (member s *syntkeys* :test #'string=))))
+    (cond
+      ;; already verbalized
+      ((wd-p tok) tok)
+
+      ;; whitespace
+      ((and (consp tok) (eq (first tok) :whitespace))
+       tok)
+
+      ;; structural
+      ((and (consp tok)
+            (member (first tok)
+                    '(:obracket :cbracket :oparen :cparen :obrace :cbrace)))
+       tok)
+
+      ;; words
+      ((and (consp tok)
+            (word-token-p (first tok)))
+       (destructuring-bind (type value &rest meta)
+           tok
+         (let* ((barred (getf meta :barred))
+                (syntkey (getf meta :syntkey))
+                (wd (logo-wd value))
+                (wd* (if (registered-syntkey-p syntkey)
+                         (enrich-word wd :syntactic-keyword t)
+                         wd)))
+           (case type
+             (:thing      (enrich-word wd* :thing t :barred barred))
+             (:quote-name (enrich-word wd* :quoted t :barred barred))
+             (:infix      (enrich-word wd* :infix t))
+             (t wd*)))))
+
+      ;; fallback
+      (t tok))))
+
 (defun verbalize-line (line)
   (destructuring-bind (tag tokens &rest meta)
       line
@@ -678,14 +750,180 @@ stage and resolved later in the pipeline."
            (mapcar #'verbalize-token tokens))
      meta)))
 
-(defun verbalize-document (token-tree)
+(defun verbalize-document (document)
   "Convert all word-producing tokens into WD structures."
   
   (destructuring-bind (tag lines &rest meta)
-      token-tree
+      document
     (list* tag
            (mapcar #'verbalize-line lines)
            meta)))
+
+;; ------------- general helpers for whitespace skipping -----
+
+(defun significant-token-p (tok)
+  (or (wd-p tok)
+      (not (eq (first tok) :whitespace))))
+
+(defun next-significant (tokens i)
+  (loop for j from (1+ i) below (length tokens)
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
+
+(defun prev-significant (tokens i)
+  (loop for j from (1- i) downto 0
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
+
+;; ------------- first handling of WITH --------------------
+
+(defun flag-scope-introducer (token)
+  (if (and (wd-p token)
+           (wd-syntkey-p token))
+      (enrich-word token :scope-introducer t)
+      token))
+
+(defun flag-scope-introducer-in-line (line)
+  (destructuring-bind (tag tokens &rest meta)
+      line
+    (append
+     (list tag
+           (mapcar #'flag-scope-introducer tokens))
+     meta)))
+
+(defun flag-scope-introducer-in-document (document)
+   (destructuring-bind (tag lines &rest meta)
+      document 
+    (list* tag
+           (mapcar #'flag-scope-introducer-in-line lines)
+           meta)))
+
+(defun flag-lexical-bindings-in-tokens (tokens)
+  (loop :with state := :start
+        :with out := '()
+        :for tok :in tokens
+        :do (ecase state
+
+              (:start
+               (cond ((and (wd-p tok)
+                           (member :scope-introducer (wd-flags tok)))
+                      (setf state :after-with)
+                      (push tok out))
+                     (t
+                      (push tok out))))
+
+              (:after-with
+               (cond ((and (consp tok)
+                           (eq (first tok) :obracket))
+                      (setf state :in-bindings)
+                      (push tok out))
+                     (t
+                      (push tok out))))
+
+              (:in-bindings
+               (cond ((and (consp tok)
+                           (eq (first tok) :obracket))
+                      (setf state :in-binding-pair)
+                      (push tok out))
+                     ((and (consp tok)
+                           (eq (first tok) :cbracket))
+                      (setf state :done)
+                      (push tok out))
+                     (t
+                      (push tok out))))
+
+              (:in-binding-pair
+               (cond
+                 ((and (consp tok)
+                       (eq (first tok) :whitespace))
+                  (push tok out))
+
+                 ((wd-p tok)
+                  (push (enrich-word tok :binding t) out)
+                  (setf state :skip-binding-rest))
+
+                 (t
+                  (push tok out))))
+
+              (:skip-binding-rest
+               (cond ((and (consp tok)
+                           (eq (first tok) :cbracket))
+                      (setf state :in-bindings)
+                      (push tok out))
+                     (t
+                      (push tok out))))
+
+              (:done
+               (push tok out)))
+
+        :finally (return (nreverse out))))
+
+(defun flag-lexical-bindings-in-line (line)
+  (flet ((line-introduces-scope-p (tokens)
+           (some (lambda (tok)
+                   (and (wd-p tok)
+                        (member :scope-introducer (wd-flags tok))))
+                 tokens)))
+    #|(destructuring-bind (tag tokens &rest meta) line
+      (list* tag
+             (flag-lexical-bindings-in-tokens tokens)
+             meta))|#
+    (destructuring-bind (tag tokens &rest meta) line
+      (let* ((new-tokens (flag-lexical-bindings-in-tokens tokens))
+             (meta*
+               (if (line-introduces-scope-p new-tokens)
+                   (plist-put meta :scope-end :line)
+                   meta)))
+        (list* tag new-tokens meta*)))))
+
+(defun flag-lexical-bindings-in-line (line)
+  (destructuring-bind (tag tokens &rest tail)
+      line
+    (let* ((new-tokens (flag-lexical-bindings-in-tokens tokens))
+           (has-scope (some (lambda (tok)
+                              (and (wd-p tok)
+                                   (member :scope-introducer
+                                           (wd-flags tok)))) 
+                              new-tokens)))
+      (if has-scope
+          (list* tag
+                 new-tokens
+                 (append tail (list :scope-end :line)))
+          (list* tag
+                 new-tokens
+                 tail)))))
+
+(defun flag-lexical-bindings-in-line (line)
+  (flet ((add-line-meta (meta2 key value)            
+           (destructuring-bind ((meta-key plist))
+               meta2
+             (list (list meta-key
+                         (append plist (list key value)))))))
+    
+    (destructuring-bind (tag tokens &rest meta1)
+        line
+      
+      (let ((new-tokens (flag-lexical-bindings-in-tokens tokens))
+            (has-scope (some (lambda (tok)
+                               (and (wd-p tok)
+                                    (member :scope-introducer (wd-flags tok))))
+                             tokens)))
+        (list* tag
+               new-tokens
+               (if has-scope
+                   (add-line-meta meta1 :scope-region :active)
+                   meta1))))))
+
+(defun flag-lexical-bindings-in-document (document)
+  (destructuring-bind (tag lines &rest meta)
+      document 
+    (list* tag
+           (mapcar #'flag-lexical-bindings-in-line lines)
+           meta)))
+
+;; ------------ second infix pass --------------------------
 
 (defun all-infix-signs ()
   "Return a vector of all registered infix operator signs."
@@ -777,29 +1015,11 @@ stage and resolved later in the pipeline."
 
 (defun decontract-infix-words-in-document (doc)
   (destructuring-bind (tag lines &rest meta) doc
-    (verbalize-lines (list* tag
+    (verbalize-document (list* tag
                             (mapcar #'decontract-infix-words-in-line lines)
                             meta))))
 
-;; ---------------- general helpers for whitespace skipping -----
-
-(defun significant-token-p (tok)
-  (or (wd-p tok)
-      (not (eq (first tok) :whitespace))))
-
-(defun next-significant (tokens i)
-  (loop for j from (1+ i) below (length tokens)
-        for tok = (nth j tokens)
-        when (significant-token-p tok)
-          return tok))
-
-(defun prev-significant (tokens i)
-  (loop for j from (1- i) downto 0
-        for tok = (nth j tokens)
-        when (significant-token-p tok)
-          return tok))
-
-;; ----------------- 2nd minus normalization ---------------------
+;; ----------------- second minus pass ---------------------
 
 (defun minus-sanity-check-in-line (line)
   (labels ((generated-minus-p (el)
@@ -873,13 +1093,13 @@ stage and resolved later in the pipeline."
            (mapcar #'replace-infix-in-line lines)
            meta)))
 
-(defun replace-first-order-procedure-words (thing)
-  (cond ((and (wd-p thing)
-              (not (wd-nmb thing))
-              (or (not (wd-flags thing))
-                  (member :generated (wd-flags thing))) )
-         (lookup-procedure (wd-str thing)))
-        (t thing)))
+(defun replace-first-order-procedure-words (tok)
+  (cond ((and (wd-p tok)
+              (not (wd-nmb tok))
+              (or (not (wd-flags tok))
+                  (member :generated (wd-flags tok))) )
+         (lookup-procedure (wd-str tok)))
+        (t tok)))
 
 (defun replace-first-order-proc-words-in-line (line)
   (destructuring-bind (line-tag elements &rest comment)
@@ -895,6 +1115,62 @@ stage and resolved later in the pipeline."
     (list* tag
            (mapcar #'replace-first-order-proc-words-in-line lines)
            meta)))
+
+
+;; --------------------------- Infix AST builder -----------------
+
+(defun build-infix-ast (tokens)
+  (labels
+      (;; --- helpers -------------------------------------------------
+
+       (skip-ws (tokens)
+         (loop while (and tokens
+                          (eq (caar tokens) :whitespace))
+               do (setf tokens (cdr tokens)))
+         tokens)
+
+       (value-token-p (tok)
+         (or (wd-p tok)
+             (and (consp tok)
+                  (member (first tok)
+                          '(:oparen :cparen)))))
+
+       ;; --- Pratt-style parser -------------------------------------
+
+       (parse-expr (tokens min-weight)
+         (multiple-value-bind (lhs rest)
+             (parse-atom tokens)
+           (loop
+             with rest* = (skip-ws rest)
+             while (and rest*
+                        (typep (first rest*) 'infix)
+                        (>= (infix-weight (first rest*)) min-weight))
+             do
+               (let* ((op (first rest*))
+                      (next-min (1+ (infix-weight op))))
+                 (multiple-value-bind (rhs rest2)
+                     (parse-expr (cdr rest*) next-min)
+                   (setf lhs (list :infix op lhs rhs)
+                         rest* rest2)))
+             finally (return (values lhs rest*)))))
+
+       (parse-atom (tokens)
+         (let ((tok (first (skip-ws tokens))))
+           (cond
+             ;; parenthesized expression
+             ((and (consp tok) (eq (first tok) :oparen))
+              (multiple-value-bind (expr rest)
+                  (parse-expr (cdr tokens) 0)
+                (values expr (cdr rest)))) ; skip :cparen
+
+             ;; plain value
+             (t
+              (values tok (cdr tokens)))))))
+
+    ;; --- entry -----------------------------------------------------
+
+    (car (parse-expr tokens 0))))
+
 
 ;; 2nd step: Parser (:call AST)
 

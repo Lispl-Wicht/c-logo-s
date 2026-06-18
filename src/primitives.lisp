@@ -294,22 +294,35 @@ outputs a plain Logo word."
   (make-wd :str str
            :nmb (parse-nmb str)
            :sym nil
+           :syntkey nil
            :flags '()))
 
-(defun enrich-word (wd &key quoted thing infix barred generated)
+(defun enrich-word (wd &key syntactic-keyword
+                            quoted thing infix scope-introducer binding
+                            barred generated invalid)
   "ENRICH-WORD wd &key quoted thing infix barred (internal constructor)
 
 outputs a Logo word with meta information about its provenance. "
   (make-wd :str (wd-str wd)
            :nmb (wd-nmb wd)
            :sym (wd-sym wd)
+           :syntkey (if syntactic-keyword
+                        (string-downcase (wd-str wd))
+                        (wd-syntkey wd)) 
            :flags (remove nil
                           (append (wd-flags wd)
                                   (when quoted '(:quoted))
                                   (when thing  '(:thing))
                                   (when infix  '(:infix))
+                                  (when scope-introducer '(:scope-introducer))
+                                  (when binding '(:binding))
                                   (when barred '(:barred))
-                                  (when generated '(:generated))))))
+                                  (when generated '(:generated))
+                                  (when invalid '(:invalid))))))
+
+(defun wd-syntkey= (wd str)
+  (string= (wd-syntkey wd) str))
+
 
 ;; COERCION
 ;; Meaning: Coercion defines how non-Logo values enter

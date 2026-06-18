@@ -389,6 +389,8 @@ Suggested test strings:
 "(print 4 - (3 - 2))"
 "repeat 5 [print \"hello"
 ```
+(See also [this](https://github.com/Lispl-Wicht/c-logo-s/issues/2#issuecomment-4719982754) 
+comment for some further test strings.)
 
 ---
 

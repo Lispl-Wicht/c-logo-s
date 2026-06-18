@@ -376,6 +376,20 @@ they are part of the current work.
 
 The current phase of development is marked as **[CURRENT]** in the [roadmap](phases.markdown).
 
+Suggested test strings:
+```
+"wIth [[x 10] ~
+       [y 20]] ~
+  print sum :x ~
+            product :x :y"
+"(print 4 - 3 - 2)"
+"(print 4 - 3 -2)"
+"(print sum 3 1 - 3 - quotient 4 2)"
+"(print (5 + 3) * 4)"
+"(print 4 - (3 - 2))"
+"repeat 5 [print \"hello"
+```
+
 ---
 
 ### What cLogos is good for *right now*

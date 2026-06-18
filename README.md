@@ -171,7 +171,7 @@ where such extensions augment Logo-based thinking rather than replace it.
 ---
 
 *For the full set of governing principles, see:*
-[**The cLogos Charter**](clogos-charter.markdown)
+[**The cLogos Charter**](conceptual-work/clogos-charter.markdown)
 
 ## Usage
 

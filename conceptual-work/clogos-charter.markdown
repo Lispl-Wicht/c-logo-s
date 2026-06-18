@@ -72,7 +72,7 @@ learner’s mind.
 ## 4. Lexical scope is a *line-based extension*, not a replacement
 
 ```logo
-with [x 10 y 20] ~
+with [[x 10] [y 20]] ~
   [print :x + :y]
 ```
 

@@ -276,7 +276,7 @@ LOGO>
 > development-time structure.
 >
 > (See also the
-> [insights about the host language](https://github.com/Lispl-Wicht/c-logo-s/wiki/Insights-about-the-host-language)
+> [insights about the host language](https://github.com/Lispl-Wicht/c-logo-s/wiki/Insights-about-the-host-language).)
 
 ---
 

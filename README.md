@@ -274,6 +274,9 @@ LOGO>
 > inspectable computational processes. Quicklisp is therefore used for setup and dependency 
 > acquisition, while ASDF remains the authoritative mechanism for system loading and 
 > development-time structure.
+>
+> (See also the
+> [insights about the host language](https://github.com/Lispl-Wicht/c-logo-s/wiki/Insights-about-the-host-language)
 
 ---
 

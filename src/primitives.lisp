@@ -320,8 +320,18 @@ outputs a Logo word with meta information about its provenance. "
                                   (when generated '(:generated))
                                   (when invalid '(:invalid))))))
 
-(defun wd-syntkey= (wd str)
+(defun wd-syntkey-p (wd)
+  (when (wd-syntkey wd)
+    T))
+
+(defun syntkey= (wd str)
   (string= (wd-syntkey wd) str))
+
+(defun syntkey-p (wd)
+  (when (member (wd-syntkey wd) *syntkeys*)
+    T))
+
+
 
 
 ;; COERCION
@@ -869,7 +879,7 @@ BF wordorlist
 if the input is a word, outputs a word containing all but the first character of the input. If
 the input is a list, outputs a list containing all but the first member of the input."
   (cond ((wd-p wordorlist) (logo-wd-butfirst wordorlist))
-        ((logo-list-p listp wordorlist) (logo-lst-butfirst wordorlist))
+        ((logo-list-p wordorlist) (logo-lst-butfirst wordorlist))
         (t
 
          ;; This will be replaced by a condition later:

@@ -668,7 +668,7 @@ stage and resolved later in the pipeline."
            (mapcar #'normalize-line lines)
            meta)))
 
-(defun verbalize-token (tok)
+#| (defun verbalize-token (tok)
   (labels ((word-token-p (type)
              (member type '(:name :thing :quote-name :infix))))
     (cond
@@ -701,7 +701,7 @@ stage and resolved later in the pipeline."
              (t wd)))))
 
       ;; fallback
-      (t tok))))
+      (t tok)))) |#
 
 (defun verbalize-token (tok)
   (labels ((word-token-p (type)
@@ -866,55 +866,15 @@ stage and resolved later in the pipeline."
                    (and (wd-p tok)
                         (member :scope-introducer (wd-flags tok))))
                  tokens)))
-    #|(destructuring-bind (tag tokens &rest meta) line
-      (list* tag
-             (flag-lexical-bindings-in-tokens tokens)
-             meta))|#
+
     (destructuring-bind (tag tokens &rest meta) line
       (let* ((new-tokens (flag-lexical-bindings-in-tokens tokens))
-             (meta*
-               (if (line-introduces-scope-p new-tokens)
-                   (plist-put meta :scope-end :line)
-                   meta)))
+             (meta* (if (line-introduces-scope-p new-tokens)
+                        (list (first meta)
+                              (append (second meta)
+                                      (list :scope-region :active)))
+                        meta)))
         (list* tag new-tokens meta*)))))
-
-(defun flag-lexical-bindings-in-line (line)
-  (destructuring-bind (tag tokens &rest tail)
-      line
-    (let* ((new-tokens (flag-lexical-bindings-in-tokens tokens))
-           (has-scope (some (lambda (tok)
-                              (and (wd-p tok)
-                                   (member :scope-introducer
-                                           (wd-flags tok)))) 
-                              new-tokens)))
-      (if has-scope
-          (list* tag
-                 new-tokens
-                 (append tail (list :scope-end :line)))
-          (list* tag
-                 new-tokens
-                 tail)))))
-
-(defun flag-lexical-bindings-in-line (line)
-  (flet ((add-line-meta (meta2 key value)            
-           (destructuring-bind ((meta-key plist))
-               meta2
-             (list (list meta-key
-                         (append plist (list key value)))))))
-    
-    (destructuring-bind (tag tokens &rest meta1)
-        line
-      
-      (let ((new-tokens (flag-lexical-bindings-in-tokens tokens))
-            (has-scope (some (lambda (tok)
-                               (and (wd-p tok)
-                                    (member :scope-introducer (wd-flags tok))))
-                             tokens)))
-        (list* tag
-               new-tokens
-               (if has-scope
-                   (add-line-meta meta1 :scope-region :active)
-                   meta1))))))
 
 (defun flag-lexical-bindings-in-document (document)
   (destructuring-bind (tag lines &rest meta)
@@ -1116,93 +1076,410 @@ stage and resolved later in the pipeline."
            (mapcar #'replace-first-order-proc-words-in-line lines)
            meta)))
 
+(defun delimiter-p (token &rest kinds)
+  (when (and (consp token)
+             (member (first token) kinds))
+    t)) 
+
+(defun group-expressions/fsm (input-tokens)
+  "Consumes INPUT-TOKENS and returns two values:
+   1. grouped output
+   2. remaining tokens (used by recursive callers)."
+
+  (labels (;; --------------------------------------------------
+           ;; helpers
+           ;; --------------------------------------------------
+
+           (skip-whitespace (tokens)
+             (loop :while (and tokens
+                               (delimiter-p (first tokens)
+                                            :whitespace))
+                   :do (setf tokens (rest tokens)))
+             tokens)
+
+           #|(group-p (x)
+             (and (consp x) (eq (first x) :group)))
+
+           (group-elements (g)
+             (second g))|#
+
+           ;; --------------------------------------------------
+           ;; core reader
+           ;; --------------------------------------------------
+
+           (read-seq (rest-tokens acc)
+             (let ((rest-tokens (skip-whitespace rest-tokens))) ;; <-- FIX: normalize here
+               (cond
+                 ;; --------------------------------------------------
+                 ;; end of input
+                 ;; --------------------------------------------------
+                 ((null rest-tokens)
+                  (values (nreverse acc) nil))
+
+                 ;; --------------------------------------------------
+                 ;; closing delimiter → return to caller
+                 ;; --------------------------------------------------
+                 ((delimiter-p (first rest-tokens) :cparen)
+                  (values (nreverse acc) rest-tokens))
+
+                 ;; --------------------------------------------------
+                 ;; opening delimiter → recurse
+                 ;; --------------------------------------------------
+                 ((delimiter-p (first rest-tokens) :oparen)
+                  (multiple-value-bind (subgroup after-sub)
+                      (read-seq (rest rest-tokens) '())
+
+                    ;; consume closing delimiter if present
+                    (if (and after-sub
+                             (delimiter-p (first after-sub) :cparen))
+                        (read-seq (rest after-sub)
+                                  (cons (list :group
+                                              :open :oparen
+                                              subgroup
+                                              :close :cparen)
+                                        acc))
+                        ;; error recovery (kept minimal, same design)
+                        (return-from group-expressions/fsm
+                          (values
+                           (nreverse (cons (list :group
+                                                 :open :oparen
+                                                 subgroup
+                                                 :close nil
+                                                 :error :missing-cparen)
+                                           acc))
+                           after-sub)))))
+
+                 ;; --------------------------------------------------
+                 ;; ordinary token → copy through
+                 ;; --------------------------------------------------
+                 (t
+                  (read-seq (rest rest-tokens)
+                            (cons (first rest-tokens) acc)))))))
+
+    (read-seq input-tokens '())))
+
+(defun group-expressions-in-line (line)
+  (destructuring-bind (tag tokens &rest meta) line
+    (multiple-value-bind (grouped remainder)
+        (group-expressions/fsm tokens)
+      (declare (ignore remainder))
+      (list* tag grouped meta))))
+
+(defun group-expressions-in-document (document)
+  (destructuring-bind (tag lines &rest meta) document
+    (list* tag
+           (mapcar #'group-expressions-in-line lines)
+           meta)))
+
+(defun reduce-args-by-arity/fsm (tokens)
+  (let ((stack (list (list :frame :toplevel)))
+        (result '()))
+
+    (labels ((push-frame (frame)
+               (push frame stack))
+
+             (pop-frame ()
+               (pop stack))
+
+             (current-frame ()
+               (first stack))
+
+             (set-frame (f)
+               (setf (first stack) f)))
+
+      (loop while tokens do
+        (let ((tok (first tokens)))
+          (setf tokens (rest tokens))
+
+          (cond
+            ;; -----------------------------------------
+            ;; procedure → start call frame
+            ;; -----------------------------------------
+            ((typep tok 'proc)
+             (push-frame
+              (list :frame :call
+                    :proc tok
+                    :remaining (slot-value tok 'default-arity)
+                    :acc '())))
+
+            ;; -----------------------------------------
+            ;; normal token → argument
+            ;; -----------------------------------------
+            (t
+             (let ((frame (current-frame)))
+               (ecase (second frame)
+
+                 ;; top-level: just collect
+                 (:toplevel
+                  (push tok result))
+
+                 ;; inside call
+                 (:call
+                  (destructuring-bind (&key proc remaining acc &allow-other-keys)
+                      (cddr frame)
+
+                    (let ((new-acc (append acc (list tok)))
+                          (new-rem (1- remaining)))
+
+                      (set-frame
+                       (list :frame :call
+                             :proc proc
+                             :remaining new-rem
+                             :acc new-acc))
+
+                      ;; close call if done
+                      (when (zerop new-rem)
+                        (pop-frame)
+                        (let ((call (list* :call proc new-acc)))
+                          (if (eq (second (current-frame)) :call)
+                              (push call (getf (cddr (current-frame)) :acc))
+                              (push call result))))))))))))))
+
+      (nreverse result)))
+
+
+
+(defun group-calls-by-arity/fsm (tokens)
+  "Groups procedures by their :default-arity.
+Consumes TOKENS and returns a new token list."
+
+  (labels (;; --------------------------------------------------
+           ;; predicates / accessors
+           ;; --------------------------------------------------
+
+           (proc-p (x)
+             (and (typep x 'proc)
+                  (plusp (slot-value x 'default-arity))))
+
+           (arity-of (proc)
+             (slot-value proc 'default-arity))
+
+           #|(group-p (x)
+           (and (consp x) (eq (first x) :group)))|#
+
+           ;; --------------------------------------------------
+           ;; FSM core
+           ;; --------------------------------------------------
+
+           ;; S0 — scanning
+           (scan (rest-tokens acc)
+             (cond
+               ((null rest-tokens)
+                (nreverse acc))
+
+               ((proc-p (first rest-tokens))
+                (let ((proc (first rest-tokens)))
+                  (collect-args (rest rest-tokens)
+                                acc
+                                proc
+                                (arity-of proc)
+                                '())))
+
+               (t
+                (scan (rest rest-tokens)
+                      (cons (first rest-tokens) acc)))))
+
+           ;; S2 — collecting arguments
+           (collect-args (rest-tokens acc proc needed args)
+             (cond
+               ;; --------------------------------------------------
+               ;; success: enough arguments
+               ;; --------------------------------------------------
+               ((zerop needed)
+                (emit-call rest-tokens acc proc args))
+
+               ;; --------------------------------------------------
+               ;; failure: input ended early
+               ;; --------------------------------------------------
+               ((null rest-tokens)
+                (emit-arity-error acc proc args))
+
+               ;; --------------------------------------------------
+               ;; consume one argument
+               ;; --------------------------------------------------
+               (t
+                (collect-args (rest rest-tokens)
+                              acc
+                              proc
+                              (1- needed)
+                              (cons (first rest-tokens) args)))))
+
+           ;; S3 — emit call
+           (emit-call (rest-tokens acc proc args)
+             (scan rest-tokens
+                   (cons (list* :call proc (nreverse args))
+                         acc)))
+
+           ;; SE — soft arity error
+           (emit-arity-error (acc proc args)
+             (nreverse
+              (cons (list :call proc
+                          (nreverse args)
+                          :error :arity-mismatch
+                          :expected (arity-of proc)
+                          :got (length args))
+                    acc))))
+
+    (scan tokens '())))
+
+(defun map-tokens/group-aware (f tokens)
+  (mapcar
+   (lambda (tok)
+     (if (and (consp tok)
+              (eq (first tok) :group))
+         (destructuring-bind (group-tag open-tag open body
+                              close-tag close &rest rest)
+             tok
+             (declare (ignore open-tag close-tag))
+           (list* group-tag
+                  :open open
+                  (funcall f body) ;; OK: isolated subtree transform
+                  :close close
+                  rest))
+         tok))
+   tokens))
+
+(defun group-calls-by-arity-in-line (line)
+  (destructuring-bind (tag tokens &rest meta) line
+    (list* tag
+           (map-tokens/group-aware
+            #'group-calls-by-arity/fsm
+            tokens)
+           meta)))
+
+#|(defun group-calls-by-arity-in-document (document)
+  (destructuring-bind (tag lines &rest meta) document
+    (list* tag
+           (mapcar #'group-calls-by-arity-in-line lines)
+           meta)))|#
+
+(defun group-calls-by-arity-in-document (doc)
+  (labels ((walk (node)
+             (cond
+               ;; ------------------------------
+               ;; GROUP: apply FSM to body
+               ;; ------------------------------
+               ((and (consp node)
+                     (eq (first node) :group))
+                (destructuring-bind
+                    (tag &key open close error &allow-other-keys)
+                    node
+                  (let* ((body (third node))
+                         (new-body
+                          (group-calls-by-arity/fsm body)))
+                    (list tag
+                          :open open
+                          new-body
+                          :close close
+                          :error error))))
+
+               ;; ------------------------------
+               ;; list: recurse
+               ;; ------------------------------
+               ((consp node)
+                (mapcar #'walk node))
+
+               ;; ------------------------------
+               ;; atom
+               ;; ------------------------------
+               (t node))))
+    (walk doc)))
 
 ;; --------------------------- Infix AST builder -----------------
 
-(defun build-infix-ast (tokens)
-  (labels
-      (;; --- helpers -------------------------------------------------
-
-       (skip-ws (tokens)
-         (loop while (and tokens
-                          (eq (caar tokens) :whitespace))
-               do (setf tokens (cdr tokens)))
-         tokens)
-
-       (value-token-p (tok)
-         (or (wd-p tok)
-             (and (consp tok)
-                  (member (first tok)
-                          '(:oparen :cparen)))))
-
-       ;; --- Pratt-style parser -------------------------------------
-
-       (parse-expr (tokens min-weight)
-         (multiple-value-bind (lhs rest)
-             (parse-atom tokens)
-           (loop
-             with rest* = (skip-ws rest)
-             while (and rest*
-                        (typep (first rest*) 'infix)
-                        (>= (infix-weight (first rest*)) min-weight))
-             do
-               (let* ((op (first rest*))
-                      (next-min (1+ (infix-weight op))))
-                 (multiple-value-bind (rhs rest2)
-                     (parse-expr (cdr rest*) next-min)
-                   (setf lhs (list :infix op lhs rhs)
-                         rest* rest2)))
-             finally (return (values lhs rest*)))))
-
-       (parse-atom (tokens)
-         (let ((tok (first (skip-ws tokens))))
-           (cond
-             ;; parenthesized expression
-             ((and (consp tok) (eq (first tok) :oparen))
-              (multiple-value-bind (expr rest)
-                  (parse-expr (cdr tokens) 0)
-                (values expr (cdr rest)))) ; skip :cparen
-
-             ;; plain value
-             (t
-              (values tok (cdr tokens)))))))
-
-    ;; --- entry -----------------------------------------------------
-
-    (car (parse-expr tokens 0))))
-
+#|(defun document->token-stream (doc)
+(mapcan (lambda (line)                  ; ;
+(second line)) ;; (:LINE tokens meta)   ; ;
+(second doc)))                          ; ;
+                                        ; ;
+(defun build-infix-ast (tokens)         ; ;
+(labels                                 ; ;
+(;; --- helpers ------------------------------------------------- ; ;
+                                        ; ;
+(skip-ws (tokens)                       ; ;
+(loop while (and tokens                 ; ;
+(eq (caar tokens) :whitespace))         ; ;
+do (setf tokens (cdr tokens)))          ; ;
+tokens)                                 ; ;
+                                        ; ;
+(value-token-p (tok)                    ; ;
+(or (wd-p tok)                          ; ;
+(and (consp tok)                        ; ;
+(member (first tok)                     ; ;
+'(:oparen :cparen)))))                  ; ;
+                                        ; ;
+       ;; --- Pratt-style parser ------------------------------------- ; ;
+                                        ; ;
+(parse-expr (tokens min-weight)         ; ;
+(multiple-value-bind (lhs rest)         ; ;
+(parse-atom tokens)                     ; ;
+(loop                                   ; ;
+with rest* = (skip-ws rest)             ; ;
+while (and rest*                        ; ;
+(typep (first rest*) 'infix)            ; ;
+(>= (infix-weight (first rest*)) min-weight)) ; ;
+do                                      ; ;
+(let* ((op (first rest*))               ; ;
+(next-min (1+ (infix-weight op))))      ; ;
+(multiple-value-bind (rhs rest2)        ; ;
+(parse-expr (cdr rest*) next-min)       ; ;
+(setf lhs (list :infix op lhs rhs)      ; ;
+rest* rest2)))                          ; ;
+finally (return (values lhs rest*)))))  ; ;
+                                        ; ;
+(parse-atom (tokens)                    ; ;
+(let ((tok (first (skip-ws tokens))))   ; ;
+(cond                                   ; ;
+             ;; parenthesized expression ; ;
+((and (consp tok) (eq (first tok) :oparen)) ; ;
+(multiple-value-bind (expr rest)        ; ;
+(parse-expr (cdr tokens) 0)             ; ;
+(values expr (cdr rest)))) ; skip :cparen ; ;
+                                        ; ;
+             ;; plain value             ; ;
+(t                                      ; ;
+(values tok (cdr tokens)))))))          ; ;
+                                        ; ;
+    ;; --- entry ----------------------------------------------------- ; ;
+                                        ; ;
+(car (parse-expr tokens 0))))           ; ;
+                                        ; ;
+(defun build-infix-ast-from-document (doc) ; ;
+(mapcar (lambda (line)                  ; ;
+(build-infix-ast (document->token-stream doc))) ; ;
+(second doc)))|#
 
 ;; 2nd step: Parser (:call AST)
 
 ;; to be adjusted:
-(defun procedure-candidate-p (tok-or-wd)
-  "True if TOK-OR-WD can syntactically denote a procedure name
-   in operator (prefix) position. No symbol resolution is assumed."
-  (cond
-    ;; -------------------------
-    ;; Raw token case
-    ;; -------------------------
-    ((and (consp tok-or-wd)
-          (member (first tok-or-wd) '(:name)))
-     (let ((str (second tok-or-wd)))
-       (and (not (numeric-literal-p str)))))
-
-    ;; -------------------------
-    ;; Verbalized word (WD)
-    ;; -------------------------
-    ((wd-p tok-or-wd)
-     (and
-      ;; not quoted
-      (not (member :quoted (wd-flags tok-or-wd)))
-      ;; not a thing reference
-      (not (member :thing (wd-flags tok-or-wd)))
-      ;; not numeric
-      (null (wd-nmb tok-or-wd))))
-
-    ;; -------------------------
-    ;; Everything else
-    ;; -------------------------
-    (t nil)))
+#|(defun procedure-candidate-p (tok-or-wd)
+"True if TOK-OR-WD can syntactically denote a procedure name ; ;
+in operator (prefix) position. No symbol resolution is assumed." ; ;
+(cond                                   ; ;
+    ;; -------------------------        ; ;
+    ;; Raw token case                   ; ;
+    ;; -------------------------        ; ;
+((and (consp tok-or-wd)                 ; ;
+(member (first tok-or-wd) '(:name)))    ; ;
+(let ((str (second tok-or-wd)))         ; ;
+(and (not (numeric-literal-p str)))))   ; ;
+                                        ; ;
+    ;; -------------------------        ; ;
+    ;; Verbalized word (WD)             ; ;
+    ;; -------------------------        ; ;
+((wd-p tok-or-wd)                       ; ;
+(and                                    ; ;
+      ;; not quoted                     ; ;
+(not (member :quoted (wd-flags tok-or-wd))) ; ;
+      ;; not a thing reference          ; ;
+(not (member :thing (wd-flags tok-or-wd))) ; ;
+      ;; not numeric                    ; ;
+(null (wd-nmb tok-or-wd))))             ; ;
+                                        ; ;
+    ;; -------------------------        ; ;
+    ;; Everything else                  ; ;
+    ;; -------------------------        ; ;
+(t nil)))|#
 
 ;; 3rd step: Semantic Lift (:ilist, :template etc.)
 
@@ -1243,3 +1520,5 @@ Returns an interned symbol in the Logo workspace if STR is a valid Logo identifi
            (intern (string-upcase str) :logo/library))
           (t
            (intern (string-upcase str) :logo/workspace)))))
+
+

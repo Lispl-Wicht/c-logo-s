@@ -41,7 +41,7 @@ that are both faithful and alive.
 **Berkeley Logo** exists precisely in this role:
 a running, stable, minimal implementation that preserves the canonical Logo
 language core with exceptional clarity and focus on powerful ideas in computer
-science education. ts restraint, shaped by the constraints and values of its 
+science education. Its restraint, shaped by the constraints and values of its 
 time, is a feature rather than a limitation.
 
 cLogos does not seek to replace Berkeley Logo, nor to "improve" it.

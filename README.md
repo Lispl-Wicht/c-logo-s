@@ -57,8 +57,10 @@ In particular, cLogos aims to support Logo’s parallel modes of thinking:
 Text, motion, and symbol are not stages to outgrow — they are 
 *coexisting modes of thought*. 
 
-cLogos does **not** aim to make programming easier.
-It aims to make **structural thinking expressible** at the level at which it is
+cLogos does **not** aim to make programming easier. And it is not a gradual programming 
+language in the sense of [Hedy](https://github.com/hedyorg/hedy).
+
+cLogos aims to make **structural thinking expressible** at the level at which it is
 already being formed in the learner’s mind.
 
 ---

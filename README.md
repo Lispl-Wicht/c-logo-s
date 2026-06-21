@@ -58,7 +58,8 @@ Text, motion, and symbol are not stages to outgrow — they are
 *coexisting modes of thought*. 
 
 cLogos does **not** aim to make programming easier. And it is not a gradual programming 
-language in the sense of [Hedy](https://github.com/hedyorg/hedy).
+language in the sense of [Hedy](https://github.com/hedyorg/hedy) or the older Scheme-based 
+concept from [*How to design programs*](https://htdp.org/2024-11-6/Book/part_preface.html#(part._drtl)). 
 
 cLogos aims to make **structural thinking expressible** at the level at which it is
 already being formed in the learner’s mind.

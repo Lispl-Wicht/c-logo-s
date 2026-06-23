@@ -1079,7 +1079,7 @@ See also:
   PRINT-CONTEXT  ; controls formatting policy
   SHOW, PRINT    ; user-facing commands built on this pipeline"))
 
-(defun render-sequence (items context style)
+#|(defun render-sequence (items context style)
   (let ((sep (print-context-separator context))
         (rendered (mapcar (lambda (x)
                             (render-node x context))
@@ -1090,7 +1090,18 @@ See also:
       (:bracket
        (format nil "[~{~A~^~A~}]" rendered sep))
       (:brace
-       (format nil "{~{~A~^~A~}}" rendered sep)))))
+       (format nil "{~{~A~^~A~}}" rendered sep)))))|#
+
+(defun render-sequence (items context style)
+  (let* ((sep (print-context-separator context))
+         (rendered (mapcar (lambda (x)
+                             (render-node x context))
+                           items))
+         (body (str:concat rendered sep)))
+    (ecase style
+      (:bare body)
+      (:bracket (format nil "[~A]" body))
+      (:brace   (format nil "{~A}" body)))))
 
 (defmethod render-node ((node rnode) context)
   (ecase (rnode-kind node)
@@ -1231,12 +1242,35 @@ returns a numeric word that is the result of the arithmetic operation OPERATOR o
   (coerce-wd (reduce operator (mapcar #'logo-wd->cl-number
                                       operands))))
 
+;;; Numeric extension: Complex numbers
+(defun logo-complex (realpart &optional (imagpart 0))
+  "COMPLEX num1 num2
+(COMPLEX num1)
+
+c(num1,num2)
+
+outputs a complex number with num1 as the real part, and num2 as the imaginary part. 
+
+The 'c' is the special quote for complex number words which must be represented as an ordered pair in conventional mathematical notation."
+  (complex realpart imagpart))
+
+(define-procedure :name "complex"
+                  :package 'logo
+                  :implementation #'logo-complex
+                  :source nil
+                  :help-wd (enrich-word (logo-wd (documentation #'logo-complex 'function))
+                                        :barred t)
+                  :default-arity 2
+                  :optional-arity 1
+                  :kind :operation)
+
 ;;; 5.1 Numeric Operations
 (defun sum (&rest nums)
   "SUM num1 num2
 (SUM num1 num2 num3 ...)
 
 num1 + num2
+
 outputs the sum of its inputs."
   (unless (>= (length nums) 2)
     ;; to be refined later
@@ -1335,6 +1369,22 @@ outputs the quotient of its inputs."
                                         :barred t)
                   :default-arity 2
                   :optional-arity -1
+                  :kind :operation)
+
+(defun logo-sqrt (num)
+  "SQRT num
+
+outputs the square root of the input, which can also be negative."
+  (sqrt num))
+
+(define-procedure :name "sqrt"
+                  :package 'logo
+                  :implementation #'logo-sqrt
+                  :source nil
+                  :help-wd (enrich-word (logo-wd (documentation #'logo-sqrt
+                                                                'function))
+                                        :barred t)
+                  :default-arity 1
                   :kind :operation)
 
 (defun power (num1 num2)

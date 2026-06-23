@@ -12,6 +12,13 @@
 ;; What can be talked about?
 (defvar *glossary-table* (make-hash-table :test 'equal))
 
+;; What are syntactic keywords?
+(defparameter *syntkeys* #|(let ((ht (make-hash-table :test #'equal)))
+                           (dolist (skw '("with" "end" "usual"))
+                             (setf (gethash skw ht) t))
+                           ht)|#
+                          '("with" "end" "usual"))
+
 ;; How is the output structured?
 (defparameter *show-context*
   (make-print-context :list-style :bracket

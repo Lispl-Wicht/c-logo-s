@@ -668,40 +668,171 @@ stage and resolved later in the pipeline."
            (mapcar #'normalize-line lines)
            meta)))
 
-#| (defun verbalize-token (tok)
-  (labels ((word-token-p (type)
-             (member type '(:name :thing :quote-name :infix))))
-    (cond
-      ;; already verbalized → leave untouched
-      ((wd-p tok)
-       tok)
+;; --- general helpers for identifying separators and whitespace skipping -----
 
-      ;; whitespace stays raw
-      ((and (consp tok)
-            (eq (first tok) :whitespace))
-       tok)
+(defun whitespace-p (tok)
+  (when (consp tok)
+    (eq (first tok) :whitespace)))
 
-      ;; structural tokens stay raw
-      ((and (consp tok)
-            (member (first tok)
-                    '(:obracket :cbracket :oparen :cparen :obrace :cbrace)))
-       tok)
+(defun significant-token-p (tok)
+  (or (wd-p tok)
+      (not (whitespace-p tok))))
 
-      ;; word-producing tokens → WD
-      ((and (consp tok)
-            (word-token-p (first tok)))
-       (destructuring-bind (type value &rest meta)
-           tok
-         (let ((barred (getf meta :barred))
-               (wd (logo-wd value)))
-           (case type
-             (:thing (enrich-word wd :thing t :barred barred))
-             (:quote-name (enrich-word wd :quoted t :barred barred))
-             (:infix (enrich-word wd :infix t))
-             (t wd)))))
+(defun next-significant (tokens i)
+  (loop for j from (1+ i) below (length tokens)
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
 
-      ;; fallback
-      (t tok)))) |#
+(defun prev-significant (tokens i)
+  (loop for j from (1- i) downto 0
+        for tok = (nth j tokens)
+        when (significant-token-p tok)
+          return tok))
+
+(defun oparen-p (tok)
+  (and (consp tok)
+       (eq (first tok) :oparen)))
+
+(defun cparen-p (tok)
+  (and (consp tok)
+       (eq (first tok) :cparen)))
+
+(defun obracket-p (tok)
+  (and (consp tok)
+       (eq (first tok) :obracket)))
+
+(defun cbracket-p (tok)
+  (and (consp tok)
+       (eq (first tok) :cbracket)))
+
+(defun obrace-p (tok)
+  (and (consp tok)
+       (eq (first tok) :obrace)))
+
+(defun cbrace-p (tok)
+  (and (consp tok)
+       (eq (first tok) :cbrace)))
+
+(defun numeric-wd-p (tok)
+  (and (wd-p tok)
+       (numberp (wd-nmb tok))))
+
+;; -------- Build complex numbers ----------------------------------
+
+(defun build-complexes/fsm (tokens)
+  (labels (;; ------------------- Helpers ---------------------
+
+           (token-str (tok)
+             (cond ((and (consp tok)
+                         (getf tok :name))
+                    (getf tok :name))
+                   ((wd-p tok)
+                    (wd-str tok))
+                   (t nil)))
+
+           (c-word-p (tok)
+             (string-equal (token-str tok) "c"))
+
+           (comma-separated-str-p (tok)
+             (let ((s (token-str tok)))
+               (and (stringp s)
+                    (str:containsp "," s))))
+
+           (split-pair (tok)
+             "If TOK is a NAME containing \"<num>,<num>\", return 
+           two WD objects. Otherwise return NIL."
+             (let* ((s (token-str tok))
+                    (parts (and s
+                                (str:split #\, s))))
+               (when (and parts
+                          (= (length parts) 2))
+                 (let ((real-part (logo-wd (first parts)))
+                       (imag-part (logo-wd (second parts))))
+                   (when (and (numberp (wd-nmb real-part))
+                              (numberp (wd-nmb imag-part)))
+                     (list (if (minusp (wd-nmb real-part))
+                               (enrich-word real-part :generated t)
+                               real-part) 
+                           (if (minusp (wd-nmb imag-part))
+                               (enrich-word imag-part :generated t)
+                               imag-part)))))))
+
+           ;; ------------------- FSM --------------------------
+           (fsm-step (ts acc state stash)
+             (cond
+               ((null ts)
+                (nreverse acc))
+
+               (t
+                (let ((tok (first ts))
+                      (rest (rest ts)))
+                  (case state
+
+                    ;; --------------------------------------------------
+                    (:scan
+                     (if (c-word-p tok)
+                         (fsm-step rest acc :after-c tok)
+                         (fsm-step rest (cons tok acc) :scan nil)))
+
+                    ;; --------------------------------------------------
+                    (:after-c
+                     (if (and (consp tok) (eq (first tok) :OPAREN))
+                         (fsm-step rest acc :after-oparen stash)
+                         ;; abort
+                         (fsm-step rest (cons tok (cons stash acc))
+                                   :scan nil)))
+
+                    ;; --------------------------------------------------
+                    (:after-oparen
+                     (if (comma-separated-str-p tok)
+                         (let ((pair (split-pair tok)))
+                           (if (and pair
+                                    rest
+                                    (consp (first rest))
+                                    (eq (first (first rest)) :CPAREN))
+                               ;; SUCCESS
+                               (fsm-step (rest rest)
+                                         #|(append
+                                          (list (logo-wd "complex")
+                                                (first pair)
+                                                (second pair))
+                                          acc)|#
+                                         (cons (second pair) ; imag-part
+                                               (cons (first pair) ; real-part
+                                                     (cons (enrich-word (logo-wd "complex")
+                                                                        :generated t)
+                                                           acc))) 
+                                         
+                                         :scan nil)
+                               ;; numeric comma but malformed
+                               (fsm-step rest
+                                         (cons tok
+                                               (cons '(:OPAREN "(")
+                                                     (cons stash acc)))
+                                         :scan nil)))
+                         ;; no comma → abort immediately
+                         (fsm-step rest
+                                   (cons tok
+                                         (cons '(:OPAREN "(")
+                                               (cons stash acc)))
+                                   :scan nil)))))))))
+
+    (fsm-step tokens nil :scan nil)))
+
+(defun build-complexes-in-line (line)
+  (destructuring-bind (tag tokens &rest meta) line
+    (list* tag
+           (build-complexes/fsm tokens)
+           meta)))
+
+(defun build-complexes-in-document (doc)
+  (destructuring-bind (tag lines &rest meta) doc
+    (list* tag
+           (mapcar #'build-complexes-in-line lines)
+           meta)))
+
+;; ------------------------------------------------------------
 
 (defun verbalize-token (tok)
   (labels ((word-token-p (type)
@@ -758,24 +889,6 @@ stage and resolved later in the pipeline."
     (list* tag
            (mapcar #'verbalize-line lines)
            meta)))
-
-;; ------------- general helpers for whitespace skipping -----
-
-(defun significant-token-p (tok)
-  (or (wd-p tok)
-      (not (eq (first tok) :whitespace))))
-
-(defun next-significant (tokens i)
-  (loop for j from (1+ i) below (length tokens)
-        for tok = (nth j tokens)
-        when (significant-token-p tok)
-          return tok))
-
-(defun prev-significant (tokens i)
-  (loop for j from (1- i) downto 0
-        for tok = (nth j tokens)
-        when (significant-token-p tok)
-          return tok))
 
 ;; ------------- first handling of WITH --------------------
 
@@ -960,6 +1073,7 @@ stage and resolved later in the pipeline."
                      (cond
                        ;; case 1: WD token
                        ((and (wd-p el)
+                             (not (numeric-wd-p el))
                              (contains-infix-signs-p (wd-str el)))
                         (decontract-infix-word-string (wd-str el)))
 
@@ -1010,7 +1124,8 @@ stage and resolved later in the pipeline."
                    for i from 0
                    collect
                    (if (and (wd-p tok)
-                            (generated-minus-p tok))
+                            (generated-minus-p tok)
+                            (not (numeric-wd-p tok)))
                        (let ((prev (prev-significant tokens i))
                              (next (next-significant tokens i)))
                          (if (invalid-minus-position-p prev next)
@@ -1076,12 +1191,220 @@ stage and resolved later in the pipeline."
            (mapcar #'replace-first-order-proc-words-in-line lines)
            meta)))
 
+;;; ------------------- Grouping contract --------------------------------
+;;;
+;;; # Sec. 1 Contract Statement (Normative)
+;;;
+;;; > After group-expressions-in-document, the document is a finite forest of
+;;; > properly nested :GROUP forms such that every syntactic application region
+;;; > (explicit or implicit) is represented as exactly one group, and no token
+;;; > participates in more than one group.
+;;; 
+;;; More concretely:
+;;; 
+;;; The output is a tree where:
+;;; 
+;;; - Parentheses induce groups
+;;; - Procedure arity induces groups
+;;; - All grouping is explicit
+;;; - No grouping semantics are implied yet
+;;;
+;;; # Sec. 2 Formal Tree Grammar 
+;;;
+;;; ## Grammar (modified BNF)
+;;; 
+;;; ### Lexical / Atomic Nodes
+;;; 
+;;; Atoms are terminal tokens and never contain structure.
+;;; ```
+;;; atom ::= wd
+;;;        | proc
+;;;        | infix
+;;;        | thing
+;;;        | literal
+;;; ```
+;;;
+;;; Where (informally):
+;;; - ```wd ::= #S(WD ...)```
+;;; - ```proc ::= #S(PROC ...)```
+;;; - ```infix ::= #S(INFIX ...)```
+;;; - ```delimiter ::= (:whitespace ...) | (:obracket ...)
+;;; > Note: parentheses **do not** appear here --
+;;;         they are already consumed and represented by :GROUP
+;;;
+;;; ### Sequence Node (Ordered Content)
+;;;
+;;; A sequence is an ordered list of elements.
+;;;
+;;; ```
+;;; sequence ::= (:seq element*)
+;;; ```
+;;;
+;;; ### Group Node (Syntactic Enclosure)
+;;;
+;;; ```group ::= (:group sequence)```
+;;;
+;;; **Invariant**
+;;; - ```:group``` has **exactly one child***
+;;; - that child is always a ```:seq```
+;;; - ```:group``` carries *no semantic meaning*
+;;;
+;;; ### Elements (What May Appear in a Sequence)
+;;;
+;;; ```
+;;; element ::= atom
+;;;           | group
+;;;
+;;; ### Line Structure
+;;;
+;;; A line contains a sequence *after grouping.*
+;;;
+;;; ```line ::= (:line sequence line-meta*)
+;;;
+;;; ### Document Structure
+;;;
+;;; ```
+;;; document ::= (:document line* document-meta*)
+;;;
+;;; ### Summary of Structural Constraints
+;;;
+;;; 1. **All parentheses in the source are represented as :group.**
+;;; 2. **There is no implicit grouping.**
+;;; 3. **Every :group encloses exactly one ```:seq```.**
+;;; 4. **No semantic roles (call, application, precedence) exist yet.
+;;; 5. **Sequences preserve token order exactly.**
+
+;;; ## Simplified conforming example
+;;; ```
+;;; (:group
+;;;   (:seq
+;;;     #S(PROC :NAME "print")
+;;;     (:group
+;;;       (:seq
+;;;         #S(PROC :NAME "sum")
+;;;         #S(WD :STR "1" :NMB 1)
+;;;         #S(WD :STR "2" :NMB 2)))
+;;;     #S(INFIX :SIGN "+")
+;;;     (:group
+;;;       (:seq
+;;;         #S(PROC :NAME "difference")
+;;;         #S(WD :STR "3" :NMB 3)
+;;;         #S(WD :STR "a" :FLAGS (:thing))))))
+;;; ```
+;;;
+;;; ### Non-Conforming Examples (Rejected by Grammar)
+;;; ```
+;;; (:group print 1 2)            ; group must be unary
+;;;
+;;; (:group (:group ...))         ; group child must be :seq
+;;;
+;;; (print sum 1 2)               ; implicit grouping
+;;;
+;;; (:group (:seq (1 2)))         ; illegal nesting of atoms
+;;; ```
+
+;; Header / signature declaration, but as **semantic objects**
+;; which the compiler *understands*
+;; It says: "Trust me. This function exists, this is its calling contract."
+(declaim (ftype function validate-node))
+;; - Declares **existence** and **intentional mutual recursion**
+;;   of VALIDATE-NODE, which is called by its predecessors in
+;;   the source, and which also calls its predecessors.
+;; - Gives the compiler freedom to optimise
+;; - Makes the structure explicit to the reader
+;; - Basically, DECLAIM is toplevel, DECLARE is local.
+;;
+;; Further possible refinement, add return values:
+;; (declaim
+;;  (ftype (function (t) boolean) validate-document)
+;;  (ftype (function (t symbol) null) validate-node))
+;;
+;; This can be regarded equivalent to C:
+;; ```
+;; bool validate_document(void *node);
+;; void validate_node(void *node, symbol tag);
+;; ```
+;; Or Pascal:
+;; ```
+;; function Validate_Document(Node : Pointer) : Boolean;
+;; procedure Validate_Node(Node : Pointe; Tag : Symbol);
+;; ```
+
+(defun validate-document-node (node)
+  (unless (and (consp node)
+               (eq (first node) :document))
+    (error "Invalid document node: ~S" node))
+  (dolist (item (second node))
+    (validate-node item :line)))
+
+(defun validate-line-node (node)
+  (unless (and (consp node)
+               (eq (first node) :line))
+    (error "Invalid line node: ~S" node))
+  (validate-node (second node) :seq))
+
+(defun validate-group-node (node)
+  (unless (and (consp node)
+               (eq (first node) :group))
+    (error "Invalid group node: ~S" node))
+
+  (let ((children (rest node)))
+    (unless (= (length children) 1)
+      (error ":group must have exactly one child, got ~D: ~S"
+             (length children) node))
+
+    (validate-node (first children) :seq)))
+
+(defun validate-seq-node (node)
+  (unless (and (consp node)
+               (eq (first node) :seq))
+    (error "Invalid :seq node: ~S" node))
+
+  (dolist (el (rest node))
+    (validate-node el :element)))
+
+(defun validate-atom (node)
+  ;; Accept structs, keywords, symbols, etc.
+  ;; Reject tagged lists (implicit structure).
+  (when (and (consp node)
+             (keywordp (first node)))
+    (error "Illegal atomic form: ~S" node))
+  t)
+
+(defun validate-element (node)
+  (cond
+    ((atom node)
+     (validate-atom node))
+
+    ((and (consp node)
+          (eq (first node) :group))
+     (validate-group-node node))
+
+    (t
+     (error "Illegal element (implicit grouping?): ~S" node))))
+
+(defun validate-node (node expected-kind)
+  (ecase expected-kind
+    (:document (validate-document-node node))
+    (:line     (validate-line-node node))
+    (:group    (validate-group-node node))
+    (:seq      (validate-seq-node node))
+    (:element  (validate-element node))))
+
+(defun validate-document (document)
+  "Validate a fully grouped document.
+Returns T on success, signals an error on violation."
+  (validate-node document :document)
+  t)
+
+;; ----------------------------------------------------
+
 (defun delimiter-p (token &rest kinds)
   (when (and (consp token)
              (member (first token) kinds))
     t)) 
 
-(defun group-expressions/fsm (input-tokens)
+#|(defun group-expressions/fsm (input-tokens)
   "Consumes INPUT-TOKENS and returns two values:
    1. grouped output
    2. remaining tokens (used by recursive callers)."
@@ -1098,7 +1421,7 @@ stage and resolved later in the pipeline."
              tokens)
 
            #|(group-p (x)
-             (and (consp x) (eq (first x) :group)))
+           (and (consp x) (eq (first x) :group))) ;
 
            (group-elements (g)
              (second g))|#
@@ -1156,14 +1479,186 @@ stage and resolved later in the pipeline."
                   (read-seq (rest rest-tokens)
                             (cons (first rest-tokens) acc)))))))
 
-    (read-seq input-tokens '())))
+    (read-seq input-tokens '())))|#
+
+#|(defun group-expressions/fsm (tokens)
+  (labels ((push-frame (stack)
+             (cons '() stack))
+
+           (push-token (token stack)
+             (cons (cons token (first stack))
+                   (rest stack)))
+
+           (close-frame (stack)
+             (let ((completed (nreverse (first stack)))
+                   (rest-stack (rest stack)))
+               (values
+                (push-token
+                 (list :group (list* :seq completed))
+                 rest-stack)
+                t)))
+
+           (scan (ts stack)
+             (cond
+               ;; end
+               ((null ts)
+                (values (nreverse (first stack)) nil))
+
+               (t
+                (let ((tok (first ts))
+                      (rest (rest ts)))
+                  (cond
+
+                    ;; OPEN
+                    ((and (consp tok)
+                          (eq (first tok) :oparen))
+                     (scan rest (push-frame stack)))
+
+                    ;; CLOSE
+                    ((and (consp tok)
+                          (eq (first tok) :cparen))
+                     (multiple-value-bind (new-stack ok)
+                         (close-frame stack)
+                       (declare (ignore ok))
+                       (scan rest (cons new-stack (rest stack)))))
+
+                    ;; ATOM
+                    (t
+                     (scan rest
+                           (push-token tok stack)))))))))
+
+    (multiple-value-bind (result _)
+        (scan tokens (list '()))
+        (declare (ignore _))
+      (values result nil))))|#
+
+#|(defun group-expressions/fsm (tokens)
+  (labels (;; -----------------------------
+           ;; helpers
+           ;; -----------------------------
+
+           (push-token (tok acc)
+             (cons tok acc))
+
+           (make-seq (elements)
+             (list* :seq (nreverse elements)))
+
+           ;; -----------------------------
+           ;; recursive descent
+           ;; -----------------------------
+
+           (scan (ts acc)
+             (cond
+               ;; -------------------------
+               ;; end of input
+               ;; -------------------------
+               ((null ts)
+                (make-seq acc))
+
+               (t
+                (let ((tok (first ts))
+                      (rest (rest ts)))
+
+                  (cond
+                    ;; -------------------------
+                    ;; OPEN
+                    ;; -------------------------
+                    ((and (consp tok)
+                          (eq (first tok) :oparen))
+                     (multiple-value-bind (subseq remaining)
+                         (scan rest '())
+                       ;; subseq already (:seq ...)
+                       (scan remaining
+                             (push-token subseq acc))))
+
+                    ;; -------------------------
+                    ;; CLOSE
+                    ;; -------------------------
+                    ((and (consp tok)
+                          (eq (first tok) :cparen))
+                     (make-seq acc))
+
+                    ;; -------------------------
+                    ;; ATOM
+                    ;; -------------------------
+                    (t
+                     (scan rest
+                           (push-token tok acc)))))))))
+
+    (scan tokens '())))|#
+
+#|(defun group-expressions/fsm (tokens)
+  (labels ((scan (ts acc)
+             (cond
+               ((null ts)
+                (nreverse acc))
+
+               (t
+                (let ((tok (first ts))
+                      (rest (rest ts)))
+
+                  (cond
+                    ;; OPEN → build subgroup
+                    ((and (consp tok)
+                          (eq (first tok) :oparen))
+                     (multiple-value-bind (subtree remaining)
+                         (scan rest '())
+                       (scan remaining
+                             (cons subtree acc))))
+
+                    ;; CLOSE → end current group
+                    ((and (consp tok)
+                          (eq (first tok) :cparen))
+                     (values (nreverse acc) rest))
+
+                    ;; ATOM
+                    (t
+                     (scan rest
+                           (cons tok acc)))))))))
+
+    (scan tokens '())))|#
+
+(defun group-expressions/fsm (tokens)
+  (labels ((scan (ts)
+             (let ((acc '()))
+               (loop while ts
+                     for tok = (first ts)
+                     do (cond
+                          ;; OPEN → recurse, then push GROUP result
+                          ((and (consp tok)
+                                (eq (first tok) :oparen))
+                           (multiple-value-bind (sub remaining)
+                               (scan (rest ts))
+                             (push (cons :group sub) acc)
+                             (setf ts remaining)))
+
+                          ;; CLOSE → return accumulated frame
+                          ((and (consp tok)
+                                (eq (first tok) :cparen))
+                           (return (values (nreverse acc) (rest ts))))
+
+                          ;; NORMAL TOKEN
+                          (t
+                           (push tok acc)
+                           (setf ts (rest ts)))))
+
+               (values (nreverse acc) nil))))
+
+    (first (multiple-value-list (scan tokens)))))
 
 (defun group-expressions-in-line (line)
   (destructuring-bind (tag tokens &rest meta) line
-    (multiple-value-bind (grouped remainder)
+    (multiple-value-bind (seq _)
         (group-expressions/fsm tokens)
-      (declare (ignore remainder))
-      (list* tag grouped meta))))
+      (declare (ignore _))
+      (list tag seq meta))))
+
+#|(defun group-expressions-in-line (line)
+  (destructuring-bind (tag tokens &rest meta) line
+    (list tag
+          (cons :group
+                (group-expressions/fsm tokens))
+          meta)))|#
 
 (defun group-expressions-in-document (document)
   (destructuring-bind (tag lines &rest meta) document
@@ -1520,5 +2015,3 @@ Returns an interned symbol in the Logo workspace if STR is a valid Logo identifi
            (intern (string-upcase str) :logo/library))
           (t
            (intern (string-upcase str) :logo/workspace)))))
-
-

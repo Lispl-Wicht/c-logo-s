@@ -129,7 +129,8 @@ For historical background see:
 cLogos began with the mistaken assumption that *Logo is essentially a Lisp*.
 Early experimentation under that assumption made the truth clear:
 
-Logo and Lisp are **close siblings**, but they are **not the same language**,
+Logo and Lisp are **close siblings**, but they are 
+[**not the same language**](https://github.com/Lispl-Wicht/c-logo-s/wiki/Insights-about-the-target-language#insight-2-logo-and-lisp-are-different),
 and they embody different pedagogical commitments. 
 
 As a result, cLogos deliberately moved away from "Logo as Lisp wear" toward a

@@ -61,8 +61,7 @@ Text, motion, and symbol are not stages to outgrow — they are
 cLogos does **not** aim to make programming easier. And it is not a gradual programming 
 language in the sense of [Hedy](https://github.com/hedyorg/hedy) or the older Scheme-based 
 concept from [*How to design programs*](https://htdp.org/2024-11-6/Book/part_preface.html#(part._drtl))
-as implemented in [DrRacket](https://docs.racket-lang.org/drracket/choose-language.html) with a
-selectable language subset (from "Beginning Student" to "Advandced Student"). 
+as implemented with [DrRacket](https://docs.racket-lang.org/drracket/htdp-langs.html). 
 
 cLogos aims to make **structural thinking expressible** at the level at which it is
 already being formed in the learner’s mind.
@@ -167,7 +166,7 @@ and not a DSL.
 
 It treats Logo as:
 
-- Turing-complete
+- Turing-complete, not a ["mini-language"](https://dl.acm.org/doi/epdf/10.1145/3372782.3406262)
 - high-level
 - general-purpose
 - and uniquely suited to learning in literacy, mathematics, and structural reasoning.

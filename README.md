@@ -61,7 +61,7 @@ Text, motion, and symbol are not stages to outgrow — they are
 cLogos does **not** aim to make programming easier. And it is not a gradual programming 
 language in the sense of [Hedy](https://github.com/hedyorg/hedy) or the older Scheme-based 
 concept from [*How to design programs*](https://htdp.org/2024-11-6/Book/part_preface.html#(part._drtl))
-as implemented in [DrRacket](https://docs.racket-lang.org/drracket/choose-language.html) as 
+as implemented in [DrRacket](https://docs.racket-lang.org/drracket/choose-language.html) with a
 selectable language subset (from "Beginning Student" to "Advandced Student"). 
 
 cLogos aims to make **structural thinking expressible** at the level at which it is

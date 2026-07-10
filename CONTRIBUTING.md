@@ -54,7 +54,7 @@ fault-tolerant cooperation.
 - Every person deserves equal respect. No accidental attribute, such as gender, heritage, or any other characteristic, diminishes
   a person’s worth or grants communicative privilege.
 - Knowledge is a gift to share, not a pedestal to stand on.
-- To err is human; forgiving as well. 
+- To err is human; forgiving is as well. 
 
 The following sections describe the current understanding of how contribution to cLogos is envisioned.
 

@@ -66,9 +66,8 @@ These sections of the project's [README file](README.md) briefly inform about th
 - [Installing and loading cLogos](https://github.com/Lispl-Wicht/c-logo-s#installing-and-loading-clogos)
 
 A comprehensive but friendly documentation in pdf form is also under development, that introduces the use of 
-[Emacs](https://www.gnu.org/software/emacs/) as obvious Common Lisp  
-[IDE](https://github.com/resources/articles/what-is-an-ide), the use of Common Lisp as the host 
-language, and the implementation of Logo as target language. 
+[Emacs](https://www.gnu.org/software/emacs/) as obvious Common Lisp [IDE](https://github.com/resources/articles/what-is-an-ide), 
+the use of Common Lisp as the host language, and the implementation of Logo as target language. 
 
 That documentation is at first written **in German**, aiming at German teachers without a programming background 
 in order to lower the barrier to participate in the project, and to introduce a pedagogically compatible 
@@ -87,9 +86,9 @@ be referenced here, and a short version will replace this text.
 The following sections of the project's [README file](README.md) provide a brief overview of how to set up the 
 development environment:
 
-* [Prerequisites](https://github.com/Lispl-Wicht/c-logo-s#prerequisites)
-* [Configuring the IDE](https://github.com/Lispl-Wicht/c-logo-s#getting-started-quickly)
-* [Installing and loading cLogos](https://github.com/Lispl-Wicht/c-logo-s#installing-and-loading-clogos)
+- [Prerequisites](https://github.com/Lispl-Wicht/c-logo-s#prerequisites)
+- [Configuring the IDE](https://github.com/Lispl-Wicht/c-logo-s#getting-started-quickly)
+- [Installing and loading cLogos](https://github.com/Lispl-Wicht/c-logo-s#installing-and-loading-clogos)
 
 A comprehensive but approachable documentation in PDF form is also under development. It introduces the use 
 of [Emacs](https://www.gnu.org/software/emacs/) as the development environment for Common Lisp, the use of 

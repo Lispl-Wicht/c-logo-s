@@ -17,6 +17,8 @@ may grow.
 - [Setting up the environment](#setting-up-the-environment)
 - [Testing](#testing)
 - [Pull Requests (PR)](#pull-requests-pr)
+  - [What is a Pull Request?](#what-is-a-pull-request)
+  - [Offering a contribution for consideration](#offering-a-contribution-for-consideration)
 
 ## Introduction
 
@@ -180,3 +182,14 @@ You can only *push* these commits to a remote repository where you have write ac
 You can *pull* changes from a remote repository into your own. Conversely, you can **request** another repository owner to incorporate 
 changes from your repository through a Pull Request.
 
+### Offering a contribution for consideration
+
+A Pull Request is not only a technical mechanism for transferring changes between repositories. It is also a way of communicating with 
+the maintainers and contributors of a project:
+
+> "I have developed something that I believe may be valuable for this project. Would you like to consider incorporating it?"
+
+The purpose of a Pull Request is therefore not to demand that changes are accepted, but to make a contribution visible, 
+understandable, and discussable.
+
+In this spirit, the following etiquette is currently envisioned:

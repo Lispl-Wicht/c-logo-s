@@ -230,7 +230,7 @@ Clone the cLogos repository into Quicklisp’s canonical directory:
 ~/quicklisp/local-projects/
 ```
 With Emacs and SLIME running, first load the external dependencies explicitly 
-(if they are not already installed): 
+(if they are not already installed): https://people.eecs.berkeley.edu/~bh/
 ```common-lisp
 CL-USER> (ql:quickload '(str parse-number))
 ```
@@ -351,7 +351,7 @@ The current pipeline (still incomplete) looks like this:
          (check-structural-balance                      ;        |
           (repair-bars                                  ;        |
            (tokenize-segments                           ;        |
-            (number-lines                               ;        |
+            (number-lines                               ;        |https://people.eecs.berkeley.edu/~bh/
              (preserve-comments                         ;        |
               (construct-lines                          ;        |
                (continue-lines "..."))))))))))))))))    ;        _
@@ -447,3 +447,8 @@ In short, this means:
 - The software is provided without warranty.
 
 See the [LICENSE file](LICENSE) for the full license text.
+
+# Code of Conduct and Contributing Guidelines
+
+- [Code of Conduct](#CODE_OF_CONDUCT.md)
+- [Contributing Guidelines](#CONTRIBUTING.md) (under development)

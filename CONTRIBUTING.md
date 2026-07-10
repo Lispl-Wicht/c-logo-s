@@ -67,6 +67,22 @@ fault-tolerant cooperation.
 
 The following sections describe the current understanding of how contribution to cLogos is envisioned.
 
+## Different forms of contribution
+
+Contribution to cLogos can take different forms, depending on one's interests, background, and relationship with the project.
+
+During the development and maintenance of cLogos, contributions are primarily concerned with building, improving, and 
+preserving the software itself. These contributions are coordinated through GitHub and may include programming, documentation, 
+design discussions, issue reports, and [Pull Requests](#what-is-a-pull-request).
+
+Once a first usable version of cLogos is available as a self-contained executable program, another important form of contribution 
+will begin: using and exploring cLogos as an educational environment. This includes experimenting with Logo based 
+on [Brian Harvey's](https://people.eecs.berkeley.edu/~bh/) textbooks, reporting experiences, identifying problems, and suggesting 
+improvements from an educational perspective.
+
+These forms of contribution are closely connected but intentionally separated. Software development contributions are managed through 
+GitHub, while contributions related to the educational use of cLogos will be supported through a dedicated cLogos website.
+
 ## Setting up the environment
 
 These sections of the project's [README file](README.md) briefly inform about the details of setting up the environment:

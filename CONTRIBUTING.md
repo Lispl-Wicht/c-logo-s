@@ -20,8 +20,10 @@ may grow.
 - [Pull Requests (PR)](#pull-requests-pr)
   - [What is a Pull Request?](#what-is-a-pull-request)
   - [Offering a contribution for consideration](#offering-a-contribution-for-consideration)
-- [Starting a discussion](#starting-a-discussion)
-- [Filing an Issue](#filing-an-issue)
+- [The project's learning workflow](#the-projects-learning-workflow)
+  - [Starting a discussion](#starting-a-discussion)
+  - [Filing an Issue](#filing-an-issue)
+  - [Assuming responsibility](#assuming-responsibility)
 
 ## Introduction
 
@@ -237,6 +239,35 @@ A well-explained contribution remains valuable even when it is not ultimately in
 
 ---
 
-## Starting a discussion
+## The project's learning workflow
 
-## Filing an Issue
+```
+Question
+        │
+        ▼
+Discussion
+        │
+        ▼
+Shared understanding
+        │
+        ▼
+Issue
+        │
+(assume responsibility)
+        ▼
+Fork / Branch
+        │
+implementation
+        ▼
+Pull Request
+        │
+review
+        ▼
+Merge
+```
+
+### Starting a Discussion
+
+### Filing an Issue
+
+### Assuming Responsibility

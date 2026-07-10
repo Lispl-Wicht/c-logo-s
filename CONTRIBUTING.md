@@ -149,14 +149,27 @@ A Pull Request starts with [*forking*](https://docs.github.com/en/pull-requests/
 
 **Forking means creating your own GitHub copy of a repository.**
 
-If you like cLogos and simply want to try it out, you can make your own local copy of the cLogos repository on your computer by [**cloning**](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
+If you like cLogos and simply want to try it out, you can make your own local copy of the cLogos repository on your computer 
+by [**cloning**](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
 
-You can experiment with this local copy and make any changes you like **on your own computer**. However, you cannot commit these changes directly to the cLogos repository because you do not own that repository and therefore do not have write privileges.
+You can experiment with this local copy and make any changes you like **on your own computer**. However, you cannot push
+these changes directly to the cLogos repository because you do not own that repository and therefore do not have write privileges.
 
-If you want to contribute changes to cLogos, you first create **your own copy of the repository on GitHub** by **forking** it. Since this fork belongs to you, you may modify it, create branches, and push your changes there.
+If you want to contribute changes to cLogos, you first create **your own copy of the repository on GitHub** by **forking** it. Since this
+fork belongs to you, you may modify it, create branches, and push your changes there.
 
 **A Pull Request is then literally a request:**
 
 > "Please compare my GitHub branch with your branch and consider merging my changes into your project."
 
 GitHub provides the interface for comparing the branches, discussing the proposed changes, reviewing the code, and completing the merge process.
+
+#### Making changes in your repository
+
+Three central [Git](https://git-scm.com/) operations are crucial when working with a local repository and its remote repositories:
+- [**commit**](https://github.com/git-guides/git-commit) = create a historical checkpoint in your local repository
+- [**push**](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository) = send your commits to a remote repository
+  (for example, a repository hosted on GitHub)
+- [**pull**](https://github.com/git-guides/git-pull) = bring commits from a remote repository into your local repository
+
+

@@ -450,5 +450,5 @@ See the [LICENSE file](LICENSE) for the full license text.
 
 # Code of Conduct and Contributing Guidelines
 
-- [Code of Conduct](#CODE_OF_CONDUCT.md)
-- [Contributing Guidelines](#CONTRIBUTING.md) (under development)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing Guidelines](CONTRIBUTING.md) (under development)

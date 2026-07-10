@@ -172,4 +172,11 @@ Three central [Git](https://git-scm.com/) operations are crucial when working wi
   (for example, a repository hosted on GitHub)
 - [**pull**](https://github.com/git-guides/git-pull) = bring commits from a remote repository into your local repository
 
+Therefore, you can always *commit* your changes to your local repository. This is the core feature of the version control system Git: 
+it allows you to recover previous versions and trace the course of development.
+
+You can only *push* these commits to a remote repository where you have write access.
+
+You can *pull* changes from a remote repository into your own. Conversely, you can **request** another repository owner to incorporate 
+changes from your repository through a Pull Request.
 

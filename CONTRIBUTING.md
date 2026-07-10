@@ -20,6 +20,8 @@ may grow.
 - [Pull Requests (PR)](#pull-requests-pr)
   - [What is a Pull Request?](#what-is-a-pull-request)
   - [Offering a contribution for consideration](#offering-a-contribution-for-consideration)
+- [Starting a discussion](#starting-a-discussion)
+- [Filing an Issue](#filing-an-issue)
 
 ## Introduction
 

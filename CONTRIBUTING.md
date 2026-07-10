@@ -192,4 +192,4 @@ the maintainers and contributors of a project:
 The purpose of a Pull Request is therefore not to demand that changes are accepted, but to make a contribution visible, 
 understandable, and discussable.
 
-In this spirit, the following etiquette is currently envisioned:
+In this spirit, the following PR etiquette is currently envisioned:

@@ -183,4 +183,51 @@ the maintainers and contributors of a project:
 The purpose of a Pull Request is therefore not to demand that changes are accepted, but to make a contribution visible, 
 understandable, and discussable.
 
-In this spirit, the following PR etiquette is currently envisioned:
+In this spirit, the following PR etiquette is currently envisioned.
+
+As a learning-oriented project, every contribution becomes part of the ongoing discourse about the development and maintenance 
+of the language and its environment. Every contribution has the potential to extend our shared understanding of the project.
+
+A Pull Request proposes a change to the project's implementation. Such proposals should therefore be introduced transparently, 
+making both their intention and their possible consequences understandable. So the primary purpose of a Pull Request in cLogos
+is not merely to propose a modification of the source, but to make the reasoning behind that modification available for 
+discussion.
+
+#### Explain the intention behind your contribution.
+
+A Pull Request should explain what problem it addresses or what improvement it proposes. Understanding the intention 
+behind a contribution is often more important than understanding the implementation itself.
+
+#### Make your reasoning visible.
+
+Describe the considerations that led to your solution. This allows others to understand not only *what* was changed, 
+but also *why* it was changed, making meaningful discussion and future maintenance much easier.
+
+#### Keep your changes focused enough to discuss.
+
+A Pull Request should preferably address one coherent topic. Smaller, well-focused contributions are easier to review, 
+discuss, understand, and, if appropriate, integrate into the project.
+
+#### Be open to feedback.
+
+A Pull Request is an invitation to discussion, not merely a proposal for integration. Questions, suggestions, and 
+alternative ideas are part of the collaborative learning process and should be welcomed as opportunities to improve 
+both the project and our shared understanding.
+
+#### Treat review as collaboration, not judgment.
+
+The purpose of reviewing a Pull Request is to improve the project together. Feedback is directed at the proposed 
+contribution, never at the person who made it. Likewise, comments should be understood as contributions to the 
+discussion rather than as personal criticism.
+
+---
+
+Every Pull Request will be reviewed with the following possible outcomes. A closed Pull Request does not necessarily represent 
+a failed contribution. Depending on the discussion, it may be:
+
+- accepted as-is,
+- accepted after revision,
+- discussed and redesigned,
+- postponed,
+- not integrated into cLogos, while still contributing valuable ideas or insights.
+

@@ -231,3 +231,4 @@ a failed contribution. Depending on the discussion, it may be:
 - postponed,
 - not integrated into cLogos, while still contributing valuable ideas or insights.
 
+A well-explained contribution remains valuable even when it is not ultimately integrated into the project.

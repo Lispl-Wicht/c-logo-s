@@ -242,29 +242,43 @@ A well-explained contribution remains valuable even when it is not ultimately in
 ## The project's learning workflow
 
 ```
-Question
+Question   (Wonder)
         │
         ▼
-Discussion
+Discussion (Discuss)      
         │
         ▼
-Shared understanding
+Shared understanding (Decide)
         │
         ▼
-Issue
+Issue        
         │
 (assume responsibility)
         ▼
 Fork / Branch
         │
-implementation
+implementation  (Create)
         ▼
 Pull Request
         │
-review
+review       (Reflect)
         ▼
-Merge
+Merge        (Integrate)
 ```
+
+Wonder
+    ↓
+Discuss
+    ↓
+Decide
+    ↓
+Take responsibility
+    ↓
+Create
+    ↓
+Reflect
+    ↓
+Integrate
 
 ### Starting a Discussion
 

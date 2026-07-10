@@ -14,6 +14,7 @@ may grow.
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Different forms of contribution](#different-forms-of-contribution)
 - [Setting up the environment](#setting-up-the-environment)
 - [Testing](#testing)
 - [Pull Requests (PR)](#pull-requests-pr)
@@ -73,7 +74,7 @@ Contribution to cLogos can take different forms, depending on one's interests, b
 
 During the development and maintenance of cLogos, contributions are primarily concerned with building, improving, and 
 preserving the software itself. These contributions are coordinated through GitHub and may include programming, documentation, 
-design discussions, issue reports, and [Pull Requests](#what-is-a-pull-request).
+design discussions, issue reports,https://people.eecs.berkeley.edu/~bh/ and [Pull Requests](#what-is-a-pull-request).
 
 Once a first usable version of cLogos is available as a self-contained executable program, another important form of contribution 
 will begin: using and exploring cLogos as an educational environment. This includes experimenting with Logo based 
@@ -83,30 +84,30 @@ improvements from an educational perspective.
 These forms of contribution are closely connected but intentionally separated. Software development contributions are managed through 
 GitHub, while contributions related to the educational use of cLogos will be supported through a dedicated cLogos website.
 
-## Setting up the environment
+## Setting up the Environment
 
-These sections of the project's [README file](README.md) briefly inform about the details of setting up the environment:
-- [Prerequisites](https://github.com/Lispl-Wicht/c-logo-s#prerequisites)
-- [Configuring the IDE](https://github.com/Lispl-Wicht/c-logo-s#getting-started-quickly)
-- [Installing and loading cLogos](https://github.com/Lispl-Wicht/c-logo-s#installing-and-loading-clogos)
+The following sections of the project's [README file](README.md) provide a brief overview of how to set up the development environment:
 
-A comprehensive but friendly documentation in pdf form is also under development, that introduces the use of 
-[Emacs](https://www.gnu.org/software/emacs/) as obvious Common Lisp [IDE](https://github.com/resources/articles/what-is-an-ide), 
-the use of Common Lisp as the host language, and the implementation of Logo as target language. 
+* [Prerequisites](https://github.com/Lispl-Wicht/c-logo-s#prerequisites)
+* [Configuring the IDE](https://github.com/Lispl-Wicht/c-logo-s#getting-started-quickly)
+* [Installing and loading cLogos](https://github.com/Lispl-Wicht/c-logo-s#installing-and-loading-clogos)
 
-That documentation is at first written **in German**, aiming at German teachers without a programming background 
-in order to lower the barrier to participate in the project, and to introduce a pedagogically compatible 
-**German** terminology. 
+A comprehensive but approachable documentation in PDF form is also under development. It introduces the use of [Emacs](https://www.gnu.org/software/emacs/) 
+as the development environment for Common Lisp, the use of Common Lisp as the host language, and the implementation of Logo as the target language.
 
-The documentation will be translated to English when it is finished. However, the documentation project is suspended 
-until the first usable version of cLogos has been reached. 
+The documentation is initially being written **in German**. Its primary audience is German teachers without a programming background, with the aim of lowering 
+the barrier to participation and establishing pedagogically appropriate **German** terminology.
 
-For this purpose, the first version is considered usable when cLogos is sufficiently mature to implement the primary 
-[textbook specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
-> Brian Harvey (1985/1997), [Computer Science Logo Style Vol. 1-3](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)
+Once completed, the documentation will be translated into English. However, work on this documentation is currently suspended until the first usable version 
+of cLogos has been reached.
 
-The parts of the finished documentation that friendly introduce the set-up of the development environment will later 
-be referenced here, and a short version will replace this text.
+For this purpose, the first version is considered usable when cLogos is sufficiently mature to implement 
+the [specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
+
+> Brian Harvey (1985/1997), [Computer Science Logo Style Vol. 1–3](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)
+
+Once the documentation is completed, the sections providing a friendly introduction to setting up the development environment will be referenced here. 
+A shorter version of this section will then replace the current text.
 
 ## Testing
 

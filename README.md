@@ -448,7 +448,7 @@ In short, this means:
 
 See the [LICENSE file](LICENSE) for the full license text.
 
-# Code of Conduct and Contributing Guidelines
+# Contributing Guidelines and Code of Conduct
 
-- [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](CONTRIBUTING.md) (under development)
+- [Code of Conduct](CODE_OF_CONDUCT.md)

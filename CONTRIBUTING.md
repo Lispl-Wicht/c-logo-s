@@ -83,8 +83,10 @@ in order to lower the barrier to participate in the project, and to introduce a 
 **German** terminology. 
 
 The documentation will be translated to English when it is finished. However, the documentation project is suspended 
-until the first version of cLogos is completed. The status *complete* is reached when cLogos is sufficient to use the 
-[specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
+until the first usable version of cLogos has been reached. 
+
+For this purpose, the first version is considered to be reached when cLogos is sufficiently mature to implement the primary 
+[textbook specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
 > Brian Harvey (1985/1997), [Computer Science Logo Style Vol. 1-3](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)
 
 The parts of the finished documentation that friendly introduce the set-up of the development environment will later 

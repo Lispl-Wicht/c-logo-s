@@ -101,7 +101,7 @@ appropriate **German** terminology.
 Once completed, the documentation will be translated into English. However, work on this documentation is currently 
 suspended until the first usable version of cLogos has been reached.
 
-For this purpose, the first version is considered usable when cLogos is sufficiently mature to implement the 
+For this purpose, the first version is considered usable when cLogos is sufficiently mature to implement the primary
 [specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
 
 > Brian Harvey (1985/1997), [Computer Science Logo Style Vol. 1–3](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)

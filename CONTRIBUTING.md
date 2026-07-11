@@ -75,7 +75,7 @@ The following sections describe the current understanding of how contribution to
 
 ---
 
-These guidelines intentionally explain not only what contributors are asked to do, but also why. Since 
+These guidelines intentionally explain not only *what* contributors are asked to do, but also *why*. Since 
 cLogos is itself an educational project, its contribution process is intended to be part of the learning experience.
 
 ---

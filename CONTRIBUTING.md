@@ -96,7 +96,7 @@ improvements from an educational perspective. **Explorers** discover what they *
 thinking.
 
 These forms of contribution are closely connected but intentionally separated. Software development contributions are managed through 
-GitHub, while contributions related to the educational use of cLogos will be supported through a dedicated cLogos website.
+GitHub, while contributions related to the educational *use* of cLogos will be supported through a dedicated cLogos website.
 
 ## Relationship between the Charter and Contribution Guidelines
 

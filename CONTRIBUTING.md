@@ -95,6 +95,19 @@ based on [Brian Harvey's](https://people.eecs.berkeley.edu/~bh/) textbooks, repo
 improvements from an educational perspective. **Explorers** discover what they *can think with* cLogos and what may disturb their
 thinking.
 
+```
+                 Logo
+                  │
+        ┌─────────┴─────────┐
+        │                   │
+   Explorers            Stewards
+   (users)             (developers)
+        │                   │
+        └─────────┬─────────┘
+                  │
+              cLogos
+```
+
 These forms of contribution are closely connected but intentionally separated. Software development contributions are managed through 
 GitHub, while contributions related to the educational *use* of cLogos will be supported through a dedicated cLogos website.
 
@@ -121,8 +134,35 @@ gardeners. Contributors may assume different roles in this garden so they can be
 Stewardship itself may be exercised from different perspectives: programming, research, and pedagogy. The dialogue between 
 these roles is grounded by the Charter and coordinated by the Guidelines to center the diverse interests.
 
+```
+                 The Logo idea
+                      │
+        ┌─────────Explorers─────────┐
+        │             │             │
+  Software         Pedagogy      Research
+  stewards         stewards      stewards
+        │             │             │
+        └─────────Explorers─────────┘
+                      │
+                 cLogos evolves
+```
+
 Together they form the constitutional framework of cLogos: one protecting the identity of the language, the other protecting 
 the integrity of its collaborative evolution.
+```
+             Museum
+               ▲
+               │
+               │  preservation without renewal
+               │
+               │
+Logo identity ─┼────────────────►
+               │
+               │  change without identity
+               │
+               ▼
+             Drift
+```
 
 ## Setting up the Environment
 

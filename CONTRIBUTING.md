@@ -107,7 +107,7 @@ the identity, principles, and boundaries of the project. It answers the question
 These Contribution Guidelines define how the community can participate in developing and maintaining that identity.  
 It answers the questions:
 > How do we steward it together? How do we responsibly care for the educational language environment entrusted to us,
-> so that the project continues to serve the educational idea.
+> so that the project continues to serve the educational idea?
 
 Both documents serve the same purpose: enabling cLogos to evolve while preserving the principles that make it cLogos. 
 > Stewardship of cLogos begins by listening closely to the language: before changing the system, observe it. Ask it questions.

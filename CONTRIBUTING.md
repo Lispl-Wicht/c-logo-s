@@ -289,7 +289,7 @@ Question   (Wonder)
         │
         ▼
 Discussion (Discuss)      
-        │
+        │These guidelines intentionally explain not only what contributors are asked to do, but also why. Since cLogos is itself an educational project, its contribution process is intended to be part of the learning experience.
         ▼
 Shared understanding (Decide)
         │
@@ -308,20 +308,6 @@ review       (Reflect)
         ▼
 Merge        (Integrate)
 ```
-
-Wonder
-    ↓
-Discuss
-    ↓
-Decide
-    ↓
-Take responsibility
-    ↓
-Create
-    ↓
-Reflect
-    ↓
-Integrate
 
 ### Starting a Discussion
 

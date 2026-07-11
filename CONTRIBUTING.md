@@ -142,7 +142,7 @@ Once completed, the documentation will be translated into English. However, work
 of cLogos has been reached.
 
 For this purpose, the first version is considered usable when cLogos is sufficiently mature to implement 
-the [specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
+the primary [specification of cLogos](https://github.com/Lispl-Wicht/c-logo-s#design-commitments):
 
 > Brian Harvey (1985/1997), [Computer Science Logo Style Vol. 1–3](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)
 

@@ -351,7 +351,7 @@ The current pipeline (still incomplete) looks like this:
          (check-structural-balance                      ;        |
           (repair-bars                                  ;        |
            (tokenize-segments                           ;        |
-            (number-lines                               ;        |https://people.eecs.berkeley.edu/~bh/
+            (number-lines                               ;        |
              (preserve-comments                         ;        |
               (construct-lines                          ;        |
                (continue-lines "..."))))))))))))))))    ;        _

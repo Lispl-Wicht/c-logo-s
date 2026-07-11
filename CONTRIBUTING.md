@@ -1,6 +1,6 @@
 *Under development*
 
-# Contributing Guideline
+# Contribution Guidelines
 
 Welcome, and thank you for considering contributing to the cLogos project.
 
@@ -15,6 +15,7 @@ may grow.
 
 - [Introduction](#introduction)
 - [Different forms of contribution](#different-forms-of-contribution)
+- [Relationship between the Charter and Contribution Guidelines](#relationship-between-the-charter-and-contribution-guidelines)
 - [Setting up the environment](#setting-up-the-environment)
 - [Testing](#testing)
 - [Pull Requests (PR)](#pull-requests-pr)
@@ -72,21 +73,56 @@ fault-tolerant cooperation.
 
 The following sections describe the current understanding of how contribution to cLogos is envisioned.
 
+---
+
+These guidelines intentionally explain not only what contributors are asked to do, but also why. Since 
+cLogos is itself an educational project, its contribution process is intended to be part of the learning experience.
+
+---
+
 ## Different forms of contribution
 
 Contribution to cLogos can take different forms, depending on one's interests, background, and relationship with the project.
 
-During the development and maintenance of cLogos, contributions are primarily concerned with building, improving, and 
-preserving the software itself. These contributions are coordinated through GitHub and may include programming, documentation, 
-design discussions, issue reports, and [Pull Requests](#what-is-a-pull-request).
+During the development and maintenance of cLogos, contributions are primarily concerned with building, improving, enriching and 
+preserving the software itself. These contributions are coordinated through GitHub and may include programming, 
+documentation, design discussions, issue reports, and [Pull Requests](#what-is-a-pull-request). Contributing to cLogos does not 
+mean owning or directing the project. It means participating in **the stewardship** of an educational language environment.
 
 Once a first usable version of cLogos is available as a self-contained executable program, another important form of contribution 
 will begin: using and exploring cLogos as an educational environment. This includes experimenting with Logo 
 based on [Brian Harvey's](https://people.eecs.berkeley.edu/~bh/) textbooks, reporting experiences, identifying problems, and suggesting 
-improvements from an educational perspective.
+improvements from an educational perspective. **Explorers** discover what they *can think with* cLogos and what may disturb their
+thinking.
 
 These forms of contribution are closely connected but intentionally separated. Software development contributions are managed through 
 GitHub, while contributions related to the educational use of cLogos will be supported through a dedicated cLogos website.
+
+## Relationship between the Charter and Contribution Guidelines
+
+The [cLogos Charter](https://github.com/Lispl-Wicht/c-logo-s/blob/development/conceptual-work/clogos-charter.markdown) defines 
+the identity, principles, and boundaries of the project. It answers the questions:
+> What are we stewarding? What must remain recognisable? What may grow?
+
+These Contribution Guidelines define how the community can participate in developing and maintaining that identity.  
+It answers the question:
+> How do we steward it together? How do we responsibly care for the educational language environment entrusted to us,
+> so that the project continues to serve the educational idea.
+
+Both documents serve the same purpose: enabling cLogos to evolve while preserving the principles that make it cLogos. 
+> Stewardship of cLogos begins by listening closely to the language: before changing the system, observe it. Ask it questions.
+> Explore what it reveals. Then act.
+
+The Charter protects the integrity of the language and its pedagogical foundations. The Contribution Guidelines protect 
+the integrity of the collaborative process through which the project evolves.
+
+Both outline the garden of cLogos, metaphorically, which is nurtured, cultivated, and guarded by the stewards as the 
+gardeners. Contributors may assume different roles in this garden so they can be stewards or explorers or, quite often, both.
+Stewardship itself may be exercised from different perspectives: programming, research, and pedagogy. The dialogue between 
+these roles is grounded by the Charter and coordinated by the Guidelines to center the diverse interests.
+
+Together they form the constitutional framework of cLogos: one protecting the identity of the language, the other protecting 
+the integrity of its collaborative evolution.
 
 ## Setting up the Environment
 
@@ -144,16 +180,20 @@ Before discussing which PR etiquette this project follows, it is helpful to unde
 
 A Pull Request starts with [*forking*](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) a [repository (repo)](https://github.blog/developer-skills/github/beginners-guide-to-github-repositories-how-to-create-your-first-repo/#what-is-a-repository).
 
-**Forking means creating your own GitHub copy of a repository.**
+**Forking means creating your own GitHub copy of a repository.** Throughout these guidelines we occasionally compare 
+such a fork to a cutting in a garden: it allows new ideas to grow without disturbing the original tree.
 
-If you like cLogos and simply want to try it out, you can make your own local copy of the cLogos repository on your computer 
-by [**cloning**](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
+If you like cLogos and simply want to try it out, you can make your own local copy, your cutting of the cLogos repository on 
+your computer by [**cloning**](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
 
-You can experiment with this local copy and make any changes you like **on your own computer**. However, you cannot push
-these changes directly to the cLogos repository because you do not own that repository and therefore do not have write privileges.
+You can experiment with this cutting and make any changes you like **on your own computer**. However, you cannot push
+these changes directly to the cLogos repository because you do not own that repository and therefore do not have write privileges. 
+You are not the steward of the original tree.
 
 If you want to contribute changes to cLogos, you first create **your own copy of the repository on GitHub** by **forking** it. Since this
-fork belongs to you, you may modify it, create branches, and push your changes there.
+fork belongs to you, you may modify it, create branches, and push your changes there. Forks are also the natural place to experiment
+with [possible extensions of cLogos](https://github.com/Lispl-Wicht/c-logo-s/blob/development/conceptual-work/clogos-charter.markdown#7-extension-disciplin) 
+that may potentially change its behaviour.
 
 **A Pull Request is then literally a request:**
 
@@ -190,7 +230,9 @@ understandable, and discussable.
 In this spirit, the following PR etiquette is currently envisioned.
 
 As a learning-oriented project, every contribution becomes part of the ongoing discourse about the development and maintenance 
-of the language and its environment. Every contribution has the potential to extend our shared understanding of the project.
+of the language and its environment providing new answers to the core question: How can cLogos become more cLogos? 
+Every contribution has the potential to deepen our shared understanding of the language, the environment, and the educational 
+ideas they embody.
 
 A Pull Request proposes a change to the project's implementation. Such proposals should therefore be introduced transparently, 
 making both their intention and their possible consequences understandable. So the primary purpose of a Pull Request in cLogos
@@ -214,7 +256,7 @@ discuss, understand, and, if appropriate, integrate into the project.
 
 #### Be open to feedback.
 
-A Pull Request is an invitation to discussion, not merely a proposal for integration. Questions, suggestions, and 
+A Pull Request is an invitation to *discussion*, not merely a proposal for integration. Questions, suggestions, and 
 alternative ideas are part of the collaborative learning process and should be welcomed as opportunities to improve 
 both the project and our shared understanding.
 
@@ -235,7 +277,8 @@ a failed contribution. Depending on the discussion, it may be:
 - postponed,
 - not integrated into cLogos, while still contributing valuable ideas or insights.
 
-A well-explained contribution remains valuable even when it is not ultimately integrated into the project.
+A well-explained contribution remains part of the project's collective learning, even when it is not ultimately integrated 
+into the implementation.
 
 ---
 

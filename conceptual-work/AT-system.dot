@@ -1,0 +1,26 @@
+graph {
+  /*rankdir = LR;*/
+  s [label = "Subject"];
+  o [label = "Object"];
+  c [label = "Community"];
+  m [label = "Mediating artefact"];
+  r [label = "Rules"];
+  d [label =" Division of labour"];
+
+  s -- o [ style=dashed ];
+  s -- c;
+  s -- m;
+  s -- r;
+  s -- d;
+  
+  c -- o [ style=dashed ];
+  c -- m;
+  c -- r;
+  c -- d;
+
+  o -- m;
+  o -- d;
+  o -- r;
+
+}
+  

@@ -8,7 +8,7 @@ graph {
   d [label =" Division of labour"];
 
   s -- o [ style=dashed ];
-  s -- c;
+  s -- c [ color=gray ];
   s -- m [ color=gray ];
   s -- r [ color=gray ];
   s -- d [ color=gray ];

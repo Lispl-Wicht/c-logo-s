@@ -1,11 +1,11 @@
 graph {
   /*rankdir = LR;*/
   s [label = "Subject"];
-  o [label = "Object"];
+  o [label = "Object\n(sense-making)"];
   c [label = "Community"];
   m [label = "Mediating artefact"];
   r [label = "Rules"];
-  d [label =" Division of labour"];
+  d [label = "Division of labour"];
 
   s -- o [ style=dashed ];
   s -- c [ color=gray ];

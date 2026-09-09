@@ -158,7 +158,7 @@ For further historical background see:
 - [LLOGOS MACLISP source](https://github.com/PDP-10/its/tree/master/src/llogo)
 
 For the ongoing conceptual development of cLogos and its theoretically informed educational framework, 
-see the: 
+see: 
 - [(Lisp (Logo Workshop)) wiki](https://github.com/Lispl-Wicht/c-logo-s/wiki).
 
 ---

@@ -157,6 +157,9 @@ For further historical background see:
 - [Logo Memo 11a/A.I. Memo 307a (1975)](https://dspace.mit.edu/entities/publication/e872965e-f6e2-423c-885e-33163c9d3d63)
 - [LLOGOS MACLISP source](https://github.com/PDP-10/its/tree/master/src/llogo)
 
+For the ongoing conceptual development of cLogos, including its implementation, objectives, and theoretically informed 
+educational framework, see the [Lisp (Logo Workshop) wiki](https://github.com/Lispl-Wicht/c-logo-s/wiki).
+
 ---
 
 ## Project scope

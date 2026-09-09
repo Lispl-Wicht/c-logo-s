@@ -159,7 +159,7 @@ For further historical background see:
 
 For the ongoing conceptual development of cLogos and its theoretically informed educational framework, 
 see the: 
-- [*(Lisp (Logo Workshop)) wiki*](https://github.com/Lispl-Wicht/c-logo-s/wiki).
+- [(Lisp (Logo Workshop)) wiki](https://github.com/Lispl-Wicht/c-logo-s/wiki).
 
 ---
 

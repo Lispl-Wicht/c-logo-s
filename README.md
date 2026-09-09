@@ -82,7 +82,7 @@ In summary:
 - **Textbooks are specifications.**
   Canonical works by 
   - [*Brian Harvey (1985/1997)*](https://people.eecs.berkeley.edu/~bh/v1-toc2.html)  
-    (currenty, 9 September 2026, not availably, temporarily
+    (currently — 9 September 2026 — not availably, temporarily
     [according to the book author](https://github.com/jrincayc/ucblogo-code/discussions/251#discussioncomment-18324311)), 
   - [*Cynthia Solomon, Margaret Minsky and Brian Harvey
   eds. (1986)*](https://logothings.github.io/logothings/logoworks/Home.html), 

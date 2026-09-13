@@ -236,7 +236,7 @@ Clone the cLogos repository into Quicklisp’s canonical directory:
 ~/quicklisp/local-projects/
 ```
 With Emacs and SLIME running, first load the external dependencies explicitly 
-(if they are not already installed): https://people.eecs.berkeley.edu/~bh/
+(if they are not already installed):
 ```common-lisp
 CL-USER> (ql:quickload '(str parse-number))
 ```
